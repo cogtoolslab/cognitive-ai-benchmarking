@@ -1,8 +1,8 @@
-# Cognitive-AI Benchmarking Project Template: HUMAN EXPERIMENTS
+# Cognitive-AI Benchmarking Project Template: Human Behavioral Experiments
 
 This is a fully worked example based on the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
-It contains several subdirectories that will contain standard elements of the HUMAN EXPERIMENTAL INFRASTRUCTURE for most Cognitive-AI Benchmarking projects.
+It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
 - `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
 - `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
