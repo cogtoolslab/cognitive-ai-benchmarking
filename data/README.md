@@ -1,1 +1,0 @@
-This directory is where you can put place data that serve as input to your analyses.
