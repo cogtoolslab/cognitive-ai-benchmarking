@@ -11,7 +11,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/24477285?v=4",
       "profile": "http://ac.felixbinder.net",
       "contributions": [
-        "maintenance"
+        "maintenance",
+        "mentoring"
       ]
     },
     {
@@ -39,6 +40,42 @@
       "profile": "https://github.com/thomaspocon",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "HaoliangWang",
+      "name": "Haoliang Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26497509?v=4",
+      "profile": "https://github.com/HaoliangWang",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "justintheyang",
+      "name": "Justin Yang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/51468707?v=4",
+      "profile": "https://github.com/justintheyang",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hawkrobe",
+      "name": "Robert Hawkins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5262024?v=4",
+      "profile": "http://rxdhawkins.com",
+      "contributions": [
+        "tool"
+      ]
+    },
+    {
+      "login": "judithfan",
+      "name": "Judy Fan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3938264?v=4",
+      "profile": "https://cogtoolslab.github.io",
+      "contributions": [
+        "example"
       ]
     }
   ],
