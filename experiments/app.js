@@ -10,15 +10,17 @@ var
   parser = require('xmldom').DOMParser,
   XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest,
   sendPostRequest = require('request').post,
-  cors = require('cors');
+  cors = require('cors'),
+  portastic = require('portastic');
 
 ////////// EXPERIMENT GLOBAL PARAMS //////////
 
 var gameport;
+var store_port;
 
 if (argv.gameport) {
   gameport = argv.gameport;
-  console.log('using port ' + gameport);
+  console.log('using public facing port ' + gameport);
 } else {
   gameport = 8886;
   console.log('no gameport specified: using 8886\nUse the --gameport flag to change');
@@ -26,17 +28,23 @@ if (argv.gameport) {
 
 // we launch store.js ourselves
 // find free internal port
-store_port = server.address.port(0);
+portastic.find({
+  min: 8888,
+  max: 8999,
+  retrieve: 1
+}).then(ports => {
+  store_port = ports;
+  if (argv.local_store) {
+    console.log('using local store on port ' + store_port);
+    // launch store.js
+    var store_process = require('child_process').spawn('node', [__dirname + '/store_local.js', '--port', store_port]);
+  } else {
+    console.log('using mongoDB store on port ' + store_port);
+    // launch store.js
+    var store_process = require('child_process').spawn('node', [__dirname + '/store.js', '--port', store_port]);
+  }
+});
 
-if (argv.local_store) {
-  console.log('using local store on port ' + store_port);
-  // launch store.js
-  var store_process = require('child_process').spawn('node', [__dirname + '/store_local.js', '--port', store_port]);
-} else {
-  console.log('using mongoDB store on port ' + store_port);
-  // launch store.js
-  var store_process = require('child_process').spawn('node', [__dirname + '/store.js', '--port', store_port]);
-}
 
 try {
   var privateKey = fs.readFileSync('/etc/letsencrypt/live/cogtoolslab.org/privkey.pem'),
@@ -98,7 +106,7 @@ function omit(obj, props) { //helper function to remove _id of stim object
 function initializeWithTrials(socket, proj_name, collection, it_name) {
   var gameid = UUID();
   // var colname = 'human-physics-benchmarking-dominoes-pilot_production_1'; //insert STIMULI DATASETNAME here
-  sendPostRequest('http://localhost:8023/db/getstims', {
+  sendPostRequest('http://localhost:'+store_port+'/db/getstims', {
     json: {
       dbname: proj_name + '_stims',
       colname: collection,
@@ -139,7 +147,7 @@ var UUID = function () {
 var writeDataToMongo = function (data, proj_name, collection, it_name) {
   var db = proj_name + '_resp';
   sendPostRequest(
-    'http://localhost:8023/db/insert',
+    'http://localhost:'+store_port+'/db/insert',
     {
       json: data,
       dbname: db,
