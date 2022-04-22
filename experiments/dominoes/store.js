@@ -12,7 +12,7 @@ const colors = require('colors/safe');
 const app = express();
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
-const port = 8023; 
+const port = 8023;
 const mongoCreds = require('./auth.json');
 const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
 const handlers = {};
@@ -54,10 +54,10 @@ function mongoConnectWithRetry(delayInMilliseconds, callback) {
 }
 
 function markAnnotation(collection, gameid, sketchid) {
-  collection.update({_id: ObjectID(sketchid)}, {
-    $push : {games : gameid},
-    $inc  : {numGames : 1}
-  }, function(err, items) {
+  collection.update({ _id: ObjectID(sketchid) }, {
+    $push: { games: gameid },
+    $inc: { numGames: 1 }
+  }, function (err, items) {
     if (err) {
       console.log(`error marking annotation data: ${err}`);
     } else {
@@ -72,7 +72,7 @@ function serve() {
   mongoConnectWithRetry(2000, (connection) => {
 
     app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true}));
+    app.use(bodyParser.urlencoded({ extended: true }));
 
     app.post('/db/insert', (request, response) => {
       if (!request.body) {
@@ -101,7 +101,7 @@ function serve() {
 
       const data = _.omit(request.body, ['colname', 'dbname']);
       // log(`inserting data: ${JSON.stringify(data)}`);
-	collection.insert(data, (err, result) => {
+      collection.insert(data, (err, result) => {
         if (err) {
           return failure(response, `error inserting data: ${err}`);
         } else {
@@ -118,6 +118,7 @@ function serve() {
 
       const databaseName = request.body.dbname;
       const collectionName = request.body.colname;
+      const iterName = request.body.iterName;
       if (!collectionName) {
         return failure(response, '/db/getstims needs collection');
       }
@@ -130,51 +131,52 @@ function serve() {
 
       // sort by number of times previously served up and take the first
       collection.aggregate([
-        // { $addFields: { numGames: { $size: '$games' } } },
+        { $match: { iterName: iterName } }, // only serve the iteration we want
         { $sort: { numGames: 1 } },
         { $limit: 1 }
       ]).toArray((err, results) => {
         if (err) {
           console.log(err);
         } else {
-            // Immediately mark as annotated so others won't get it too
-          try{
-            markAnnotation(collection, request.body.gameid, results[0]['_id']);}
-            catch (err){
-              console.log("Couldn't mark gameID as served",err);
-            }
-            console.log("Sending",results[0]);
-            response.send(results[0]);
+          // Immediately mark as annotated so others won't get it too
+          try {
+            markAnnotation(collection, request.body.gameid, results[0]['_id']);
+          }
+          catch (err) {
+            console.log("Couldn't mark gameID as served", err);
+          }
+          console.log("Sending", results[0]);
+          response.send(results[0]);
         }
       });
     });
 
-    app.post('/db/exists', (request, response) => {            
+    app.post('/db/exists', (request, response) => {
       if (!request.body) {
         return failure(response, '/db/exists needs post request body');
       }
       const databaseName = request.body.dbname;
+      const collectionName = request.body.colname;
       const database = connection.db(databaseName);
       const query = request.body.query;
       const projection = request.body.projection;
-      // hardcoded for now (TODO: get list of collections in db)
-	var collectionList = ['BACH']; 
-	function checkCollectionForHits(collectionName, query, projection, callback) {
-        const collection = database.collection(collectionName);        
-        collection.find(query, projection).limit(1).toArray((err, items) => {          
+      var collectionList = [collectionName];
+      function checkCollectionForHits(collectionName, query, projection, callback) {
+        const collection = database.collection(collectionName);
+        collection.find(query, projection).limit(1).toArray((err, items) => {
           callback(!_.isEmpty(items));
-        });  
+        });
       }
       function checkEach(collectionList, checkCollectionForHits, query,
-       projection, evaluateTally) {
+        projection, evaluateTally) {
         var doneCounter = 0;
-        var results = 0;          
+        var results = 0;
         collectionList.forEach(function (collectionName) {
           checkCollectionForHits(collectionName, query, projection, function (res) {
             log(`got request to find_one in ${collectionName} with` +
-                ` query ${JSON.stringify(query)} and projection ${JSON.stringify(projection)}`);          
+              ` query ${JSON.stringify(query)} and projection ${JSON.stringify(projection)}`);
             doneCounter += 1;
-            results+=res;
+            results += res;
             if (doneCounter === collectionList.length) {
               evaluateTally(results);
             }
@@ -183,10 +185,10 @@ function serve() {
       }
       function evaluateTally(hits) {
         console.log("hits: ", hits);
-        response.json(hits>0);
+        response.json(hits > 0);
       }
       checkEach(collectionList, checkCollectionForHits, query, projection, evaluateTally);
-    });    
+    });
 
 
     app.listen(port, () => {
