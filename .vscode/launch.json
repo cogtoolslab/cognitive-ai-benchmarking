@@ -14,7 +14,7 @@
         "program": "experiments/app.js",
         "args": [
             "--gameport",
-            "8882",
+            "8879",
             "--local_store"
         ],
         "request": "launch",
