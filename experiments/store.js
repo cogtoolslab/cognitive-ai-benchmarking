@@ -16,7 +16,7 @@ const mongoCreds = require('./dominoes/auth.json');
 const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
 const handlers = {};
 
-argv = require('minimist')(process.argv.slice(2));
+var argv = require('minimist')(process.argv.slice(2));
 
 const port = argv.port || 8012;
 
