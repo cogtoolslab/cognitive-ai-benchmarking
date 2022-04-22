@@ -59,6 +59,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "hawkrobe",
+      "name": "Robert Hawkins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5262024?v=4",
+      "profile": "http://rxdhawkins.com",
+      "contributions": [
+        "tool"
+      ]
     }
   ],
   "contributorsPerLine": 7,
