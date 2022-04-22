@@ -1,0 +1,51 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "felixbinder",
+      "name": "Felix Binder",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24477285?v=4",
+      "profile": "http://ac.felixbinder.net",
+      "contributions": [
+        "maintenance"
+      ]
+    },
+    {
+      "login": "yifr",
+      "name": "Yoni Friedman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26826815?v=4",
+      "profile": "http://yonifriedman.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yamins81",
+      "name": "Dan Yamins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/231307?v=4",
+      "profile": "https://github.com/yamins81",
+      "contributions": [
+        "eventOrganizing"
+      ]
+    },
+    {
+      "login": "thomaspocon",
+      "name": "thomaspocon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5657644?v=4",
+      "profile": "https://github.com/thomaspocon",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "cognitive-ai-benchmarking",
+  "projectOwner": "cogtoolslab",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
