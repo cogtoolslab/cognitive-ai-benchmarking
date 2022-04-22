@@ -23,11 +23,13 @@ if (DEBUG_MODE) {
 }
 
 function launchDominoesExperiment() {
-  socket.emit("getStims", stimInfo, (response) => {
+  socket.emit("getStims", stimInfo);
+
+  socket.on("stims", (experimentConfig) => {
     if (DEBUG_MODE) {
-      console.log(response);
+      console.log(experimentConfig);
     }
-    buildAndRunExperiment(response);
+    buildAndRunExperiment(experimentConfig);
   });
 }
 
