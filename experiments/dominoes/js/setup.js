@@ -4,10 +4,10 @@ var urlParams = new URLSearchParams(queryString);
 var prolificID = urlParams.get("PROLIFIC_PID"); // ID unique to the participant
 var studyID = urlParams.get("STUDY_ID"); // ID unique to the study
 var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular submission
-var projName = urlParams.get("proj_name");
-var expName = urlParams.get("exp_name");
-var iterName = urlParams.get("iter_name");
-var stimInfo = { proj_name: projName, exp_name: expName, iterName: iterName };
+var projName = urlParams.get("projName");
+var expName = urlParams.get("expName");
+var iterName = urlParams.get("iterName");
+var stimInfo = { proj_name: projName, exp_name: expName, iter_name: iterName };
 
 if (DEBUG_MODE) {
   console.log(
@@ -16,13 +16,18 @@ if (DEBUG_MODE) {
     "Experiment Name: ",
     expName,
     "iteration Name: ",
-    iterName
+    iterName,
+    "stimInfo",
+    stimInfo
   );
 }
 
 function launchDominoesExperiment() {
-  socket.emit("getStims", stimInfo, (experimentConfig) => {
-    buildAndRunExperiment(experimentConfig);
+  socket.emit("getStims", stimInfo, (response) => {
+    if (DEBUG_MODE) {
+      console.log(response);
+    }
+    buildAndRunExperiment(response);
   });
 }
 
@@ -36,6 +41,9 @@ function buildAndRunExperiment(experimentConfig) {
   sure to specify an onFinish function that saves the trial response.
     --> see `stim_on_finish` function for an example.
 */
+  if (DEBUG_MODE) {
+    console.log("building experiment with config: ", experimentConfig);
+  }
 
   // Define trial object with boilerplate
   function Experiment() {
@@ -70,9 +78,6 @@ function buildAndRunExperiment(experimentConfig) {
   var gameid = experimentConfig.gameid;
   var stims = experimentConfig.stims;
   var familiarization_stims = experimentConfig.familiarization_stims;
-  var dbname = experimentConfig.projName;
-  var colname = experimentConfig.colName;
-  var iterName = experimentConfig.iterName;
 
   if (DEBUG_MODE) {
     console.log("gameid", gameid);
@@ -130,7 +135,16 @@ function buildAndRunExperiment(experimentConfig) {
     last_yes = data.response == "YES"; //store if the last reponse is yes
     socket.emit("currentData", data);
     if (DEBUG_MODE) {
-      console.log("emitting data", data, "proj_name":, proj_name, "exp_name": exp_name, "iter_name": iter_name);
+      console.log(
+        "emitting data",
+        data,
+        "proj_name",
+        proj_name,
+        "exp_name",
+        exp_name,
+        "iter_name",
+        iter_name
+      );
     }
   };
 
