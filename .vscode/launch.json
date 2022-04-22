@@ -1,0 +1,40 @@
+{
+    "configurations": [
+    {
+        "name": "Attach by Process ID",
+        "processId": "${command:PickProcess}",
+        "request": "attach",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node"
+    },
+    {
+        "name": "Launch app.js",
+        "program": "experiments/app.js",
+        "args": [
+            "--gameport",
+            "8882",
+            "--local_store"
+        ],
+        "request": "launch",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node"
+    },
+    {
+        "name": "Launch Chrome",
+        "request": "launch",
+        "type": "chrome",
+        "url": "https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1",
+        "webRoot": "${workspaceFolder}/experiments"
+    },
+        {
+            "type": "pwa-chrome",
+            "name": "https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1",
+            "request": "launch",
+            "url": "https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1"
+        }
+    ]
+}
