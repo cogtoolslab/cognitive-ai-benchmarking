@@ -66,7 +66,7 @@ __pycache__/
 *.ai
 auth.json
 auth.txt
-
+prolificToken.txt
 
 # Distribution / packaging
 .Python
