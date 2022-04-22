@@ -11,6 +11,8 @@ var argv = require('minimist')(process.argv.slice(2));
 
 const port = argv.port || 8012;
 
+console.log(`store running at http://localhost:${port}`);
+
 function makeMessage(text) {
   return `${colors.blue('[store]')} ${text}`;
 }
