@@ -1,4 +1,4 @@
-var DEBUG_MODE = false; //print debug and piloting information to the console
+var DEBUG_MODE = true; //print debug and piloting information to the console
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 var prolificID = urlParams.get("PROLIFIC_PID"); // ID unique to the participant
@@ -9,6 +9,23 @@ var expName = urlParams.get("exp_name");
 var iterName = urlParams.get("iter_name");
 var stimInfo = { proj_name: projName, exp_name: expName, iterName: iterName };
 
+if (DEBUG_MODE) {
+  console.log(
+    "Project Name: ",
+    projName,
+    "Experiment Name: ",
+    expName,
+    "iteration Name: ",
+    iterName
+  );
+}
+
+function launchDominoesExperiment() {
+  socket.emit("getStims", stimInfo, (experimentConfig) => {
+    buildAndRunExperiment(experimentConfig);
+  });
+}
+
 function buildAndRunExperiment(experimentConfig) {
   /*
   This function should be modified to fit your specific experiment needs.
@@ -17,7 +34,31 @@ function buildAndRunExperiment(experimentConfig) {
   The function receives stimuli / experiment configs from your database,
   and should build the appropriate jsPsych timeline. For each trial, make
   sure to specify an onFinish function that saves the trial response.
+    --> see `stim_on_finish` function for an example.
 */
+
+  // Define trial object with boilerplate
+  function Experiment() {
+    (this.type = "video-overlay-button-response"), (this.dbname = dbname);
+    this.colname = colname;
+    this.iterationName = itname;
+    this.response_allowed_while_playing = false;
+    // this.phase = 'experiment';
+    this.condition = "prediction";
+    this.prompt = "Is the red object going to hit the yellow area?";
+    this.choices = choices;
+  }
+
+  function FamiliarizationExperiment() {
+    // extends Experiment to provide basis for familizarization trials
+    Experiment.call(this);
+    this.condition = "familiarization_prediction";
+  }
+
+  var last_correct = undefined; //was the last trial correct? Needed for feedback in familiarization
+  var correct = 0;
+  var total = 0;
+  var last_yes = undefined;
 
   // These are flags to control which trial types are included in the experiment
   const includeIntro = true;
@@ -57,9 +98,9 @@ function buildAndRunExperiment(experimentConfig) {
   var stim_on_finish = function (data) {
     // let's add gameID and relevant database fields
     data.gameID = gameID;
-    data.dbname = dbname;
-    data.colname = colname;
-    data.iterationName = iterName;
+    data.proj_name = projName;
+    data.exp_name = expName;
+    data.iter_name = iterName;
     data.stims_not_preloaded = /^((?!chrome|android).)*safari/i.test(
       navigator.userAgent
     ); //HACK turned off preloading stimuli for Safari in jspsych-video-button-response.js
@@ -89,7 +130,7 @@ function buildAndRunExperiment(experimentConfig) {
     last_yes = data.response == "YES"; //store if the last reponse is yes
     socket.emit("currentData", data);
     if (DEBUG_MODE) {
-      console.log("emitting data", data);
+      console.log("emitting data", data, "proj_name":, proj_name, "exp_name": exp_name, "iter_name": iter_name);
     }
   };
 
@@ -448,8 +489,4 @@ function buildAndRunExperiment(experimentConfig) {
     default_iti: 1000,
     show_progress_bar: true,
   });
-}
-
-function launchExperiment() {
-  socket.emit("getStims", stimInfo, buildAndRunExperiment(experimentConfig));
 }
