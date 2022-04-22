@@ -46,12 +46,23 @@ function buildAndRunExperiment(experimentConfig) {
   if (DEBUG_MODE) {
     console.log("building experiment with config: ", experimentConfig);
   }
+  var gameid = experimentConfig.gameid;
+
+  //randomize button order on a subject basis
+  var get_random_choices = () => {
+    if (Math.random() > 0.5) {
+      return ["NO", "YES"];
+    } else {
+      return ["YES", "NO"];
+    }
+  };
+  var choices = get_random_choices(); //randomize button order
 
   // Define trial object with boilerplate
   function Experiment() {
-    (this.type = "video-overlay-button-response"), (this.dbname = dbname);
-    this.colname = colname;
-    this.iterationName = itname;
+    (this.type = "video-overlay-button-response"), (this.dbname = projName);
+    this.colname = expName;
+    this.iterationName = iterName;
     this.response_allowed_while_playing = false;
     // this.phase = 'experiment';
     this.condition = "prediction";
@@ -90,7 +101,7 @@ function buildAndRunExperiment(experimentConfig) {
   // at end of each trial save data locally and send data to server
   var main_on_finish = function (data) {
     // let's add gameID and relevant database fields
-    data.gameID = gameID;
+    data.gameID = gameid;
     data.dbname = dbname;
     data.colname = colname;
     data.iterationName = iterName;
@@ -104,7 +115,7 @@ function buildAndRunExperiment(experimentConfig) {
   // at end of each trial save data locally and send data to server
   var stim_on_finish = function (data) {
     // let's add gameID and relevant database fields
-    data.gameID = gameID;
+    data.gameID = gameid;
     data.proj_name = projName;
     data.exp_name = expName;
     data.iter_name = iterName;
@@ -141,11 +152,11 @@ function buildAndRunExperiment(experimentConfig) {
         "emitting data",
         data,
         "proj_name",
-        proj_name,
+        projName,
         "exp_name",
-        exp_name,
+        expName,
         "iter_name",
-        iter_name
+        iterName
       );
     }
   };
