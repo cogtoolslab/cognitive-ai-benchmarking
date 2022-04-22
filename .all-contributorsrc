@@ -68,6 +68,15 @@
       "contributions": [
         "tool"
       ]
+    },
+    {
+      "login": "judithfan",
+      "name": "Judy Fan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3938264?v=4",
+      "profile": "https://cogtoolslab.github.io",
+      "contributions": [
+        "example"
+      ]
     }
   ],
   "contributorsPerLine": 7,
