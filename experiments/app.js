@@ -30,8 +30,8 @@ if (argv.gameport) {
 // we launch store.js ourselves
 // find free internal port
 portastic.find({
-  min: 8888,
-  max: 8999,
+  min: 4000,
+  max: 5000,
   retrieve: 1
 }).then(ports => {
   store_port = ports;
@@ -66,6 +66,7 @@ app.get('/*', (req, res) => {
 });
 
 io.on('connection', function (socket) {
+  console.log('\t :: Express :: client connected');
 
   // on request serve the stimulus data
   socket.on('getStims', function (data) {
