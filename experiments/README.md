@@ -26,3 +26,6 @@ For the example here, we are using the following values:
 
 ### Using Prolific? 
 - `TODO: add instructions here`
+
+### Want to just look at the experiment? 
+You can navigate to `dominoes_local` to locally run the experiment by clicking on `index.html`
