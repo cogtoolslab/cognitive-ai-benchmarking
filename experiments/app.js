@@ -101,8 +101,14 @@ var serveFile = function (req, res) {
 };
 
 function omit(obj, props) { //helper function to remove _id of stim object
-  props = props instanceof Array ? props : [props]
-  return eval(`(({${props.join(',')}, ...o}) => o)(obj)`)
+  // console.log(obj);
+  // console.log(props);
+  try{
+    props = props instanceof Array ? props : [props]
+    return eval(`(({${props.join(',')}, ...o}) => o)(obj)`)
+  } catch (err) {
+    return obj;
+  }
 }
 
 function initializeWithTrials(socket, proj_name, collection, it_name) {
