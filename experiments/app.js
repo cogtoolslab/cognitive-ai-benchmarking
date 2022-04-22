@@ -38,11 +38,11 @@ portastic.find({
   if (argv.local_store) {
     console.log('using local store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [__dirname + '/store_local.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', ['store_local.js', '--port', store_port]);
   } else {
     console.log('using mongoDB store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [__dirname + '/store.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', ['store.js', '--port', store_port]);
   }
 });
 
