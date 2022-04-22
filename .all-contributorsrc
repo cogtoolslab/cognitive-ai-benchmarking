@@ -22,6 +22,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "yamins81",
+      "name": "Dan Yamins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/231307?v=4",
+      "profile": "https://github.com/yamins81",
+      "contributions": [
+        "eventOrganizing"
+      ]
     }
   ],
   "contributorsPerLine": 7,
