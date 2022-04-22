@@ -12,10 +12,13 @@ const colors = require('colors/safe');
 const app = express();
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
-const port = 8023;
 const mongoCreds = require('./auth.json');
 const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
 const handlers = {};
+
+argv = require('minimist')(process.argv.slice(2));
+
+const port = argv.port || 8012;
 
 function makeMessage(text) {
   return `${colors.blue('[store]')} ${text}`;
