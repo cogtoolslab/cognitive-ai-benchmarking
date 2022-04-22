@@ -62,7 +62,7 @@ function serve() {
 
       const data = _.omit(request.body, ['colname', 'dbname']);
 
-      const ResponsePath = 'results/'.concat(databaseName, '/', collectionName, '.csv');
+      const ResponsePath = '../results/'.concat(databaseName, '/', collectionName, '.csv');
       var data_csv = [data];
       write(ResponsePath, data_csv);
       console.log(`inserting data: ${JSON.stringify(data)}`);
