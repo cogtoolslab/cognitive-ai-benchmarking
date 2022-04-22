@@ -1,6 +1,7 @@
 Directory to contain experiment code (e.g., HTML/CSS/JavaScript) for this project.
 
-To run the experiment, run `node app.js --gameport PORT` where PORT is the port number you want to use. If don't want to use the mongoDB backend (we recommend using the mongoDB backend), run `node app.js --gameport PORT --local_store`.
+To run the experiment, run `node app.js --gameport PORT` where PORT is the port number you want to use. If don't want to use the mongoDB backend (we recommend using the mongoDB backend), run `node app.js --gameport PORT --local_store`. 
+This needs to be ran from the experiments folder (ie. do `cd experiments` before running this).
 Only one version of `app.js` needs to be run for all experiments.
 
 The experiments are called using `https://SERVER.TLD:PORT/experiment/index.html/
@@ -12,6 +13,7 @@ For the example here, we are using the following values:
 | experiment name | domninoes_OCP |
 | iteration_name | iteration_1 |
 
+For example, use [https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1](https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1).
 
 ### Checklist for starting data collection on new online experiment
 - Complete your OSF pre-registration worksheet
