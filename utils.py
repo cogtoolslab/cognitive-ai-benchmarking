@@ -39,9 +39,13 @@ def get_cab_configs():
     """
     global _cab_configs
     if _cab_configs is None:
-        config = configparser.ConfigParser()
-        config.read(CONFIGFILE)
-        _cab_configs = config
+        if os.path.exists(CONFIGFILE):
+            config = configparser.ConfigParser()
+            config.read(CONFIGFILE)
+            _cab_configs = config
+        else:
+            print("No config exists at path %s, check settings" % CONFIGFILE)
+            sys.exit()
     return _cab_configs
 
 
