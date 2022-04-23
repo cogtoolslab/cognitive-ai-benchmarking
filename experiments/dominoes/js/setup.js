@@ -102,8 +102,8 @@ function buildAndRunExperiment(experimentConfig) {
   var main_on_finish = function (data) {
     // let's add gameID and relevant database fields
     data.gameID = gameid;
-    data.dbname = dbname;
-    data.colname = colname;
+    data.dbname = projName;
+    data.colname = expName;
     data.iterationName = iterName;
 
     socket.emit("currentData", data);
