@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
   });
   // write data to db upon getting current data
   socket.on('currentData', function (data) {
-    console.log('currentData received: ' + JSON.stringify(data));
+    console.log('currentData received: ' + JSON.stringify(data).substring(0,200));
     // Increment games list in mongo here
     var proj_name = data.proj_name;
     var exp_name = data.exp_name;
