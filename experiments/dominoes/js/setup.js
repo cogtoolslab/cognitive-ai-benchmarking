@@ -41,7 +41,7 @@ function buildAndRunExperiment(experimentConfig) {
   The function receives stimuli / experiment configs from your database,
   and should build the appropriate jsPsych timeline. For each trial, make
   sure to specify an onFinish function that saves the trial response.
-    --> see `stim_on_finish` function for an example.
+    --> see `stim_on_finish` function for an example. 
 */
   if (DEBUG_MODE) {
     console.log("building experiment with config: ", experimentConfig);
@@ -114,11 +114,12 @@ function buildAndRunExperiment(experimentConfig) {
 
   // at end of each trial save data locally and send data to server
   var stim_on_finish = function (data) {
-    // let's add gameID and relevant database fields
+    /* You need to add these database fields to correctly log trials */
     data.gameID = gameid;
     data.proj_name = projName;
     data.exp_name = expName;
     data.iter_name = iterName;
+
     data.stims_not_preloaded = /^((?!chrome|android).)*safari/i.test(
       navigator.userAgent
     ); //HACK turned off preloading stimuli for Safari in jspsych-video-button-response.js
