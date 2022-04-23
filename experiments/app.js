@@ -20,8 +20,17 @@ var store_port;
 var store_process;
 
 if (argv.gameport) {
-  gameport = argv.gameport;
-  console.log('using public facing port ' + gameport);
+  try {
+    if ((argv.gameport < 8850) || (argv.gameport > 8999)) {
+      throw 'error';
+    } else {
+      gameport = argv.gameport;
+      console.log('using public facing port ' + gameport);
+    }
+  } catch (err) {
+    console.log('invalid gameport: choose a gameport between 8850 and 8999');
+    process.exit();
+  }
 } else {
   gameport = 8886;
   console.log('no gameport specified: using 8886\nUse the --gameport flag to change');
