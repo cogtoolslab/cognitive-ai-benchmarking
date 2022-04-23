@@ -42,13 +42,12 @@ username=myusername #optional, default if unspecified is "cabUser"
 host=myhost #optional, default if unspecified is 127.0.0.1
 port=myport #optional, default if unspecified is 27017
 ```
-## client side
-- jsPsych library
+## client-side tools
+- [jsPsych](https://www.jspsych.org/7.2/)
 
-## server side
-- 
-
-### node.js dependencies
+## server-side tools
+- [node.js](https://nodejs.org/en/) 
+- [mongodb](https://www.mongodb.com/)
 
 ### mongodb setup 
 
@@ -60,8 +59,7 @@ port=myport #optional, default if unspecified is 27017
 - Assumes that you have already generated your stimuli elsewhere.
 
 ## designing task user interface
-- getting acquainted with jsPsych
-- 
+- write your jsPsych plugin
 
 ## configuring experiment according to research design
 - creating and uploading the experiment config (including projName, expName, iterationName)
@@ -69,7 +67,6 @@ port=myport #optional, default if unspecified is 27017
 - defining the criteria by which a session is valid.
 
 ## launching your experiment on a web server
-
 
 If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
 
