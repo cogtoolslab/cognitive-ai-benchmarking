@@ -8,6 +8,7 @@ var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular subm
 var projName = urlParams.get("projName");
 var expName = urlParams.get("expName");
 var iterName = urlParams.get("iterName");
+// var platform = urlParams.get("platform");
 
 /****************************************************
   If you have any other URL Parameters that you need 
