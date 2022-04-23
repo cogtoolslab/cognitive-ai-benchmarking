@@ -5,12 +5,25 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const mongodb = require('mongodb');
 const colors = require('colors/safe');
-
+const ConfigParser = require('configparser');
+const config = new ConfigParser();
 const app = express();
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
-const mongoCreds = require('./auth.json');
-const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
+
+const settings_file = '../settings.conf';
+config.read(settings_file);
+const CONFIG_FILE_PATH = config.get('DEFAULTS', 'CONFIG_FILENAME');
+const PORT_NUM = config.get('DEFAULTS', 'MONGODB_PORT');
+
+const CONFIG_FILE = '/home/'.concat(process.env['USER'], '/', CONFIG_FILE_PATH);
+
+config.read(CONFIG_FILE);
+const user = config.get('User1', 'user');
+const pswd = config.get('User1', 'pswd');
+
+// const mongoCreds = require('./auth.json');
+const mongoURL = `mongodb://${user}:${pswd}@localhost:${PORT_NUM}/`;
 
 var argv = require('minimist')(process.argv.slice(2));
 
