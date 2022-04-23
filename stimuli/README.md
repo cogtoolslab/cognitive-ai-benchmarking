@@ -8,8 +8,8 @@ It takes 5 inputs:
     bucket: string, name of bucket to write to
     pth_to_s3_credentials: string, path to AWS credentials file
     data_root: string, root path for data to upload
-    data_path: string, path in data_root to be included in upload
-    multilevel: True for multilevel directory structures, False if all data is stored in one directore
+    data_path: string, path in data_root to be included in upload. should be * if all data is stored in one directory
+    multilevel: True for multilevel directory structures, False if all data is stored in one directory
     
 for a simple data directory with all to-be-uploaded files in one directory,  data_path is in the form /path/to/your/data
     
