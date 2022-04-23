@@ -19,10 +19,47 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
-Three different modes for using this repo:
+## Three different modes for using this repo:
 - Level 1: Example client-side JavaScript code for prototyping tasks quickly
 - Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
 - Level 3: Example integration with an already running mongodb server
+
+
+## The central concepts in this repo
+
+When working on a project, you will oftentimes run many different experiments that are related to each other. We propose a way of thinking about these related experiments that makes keeping track of them easy.
+
+At the top of the hierarchy is the **project**—for example *Physion*. This corresponds to a repository.
+
+There are **datasets**—for example one particular scenario from the Physion dataset, eg. *dominoes*.
+
+The questions that we might ask of these datasets might change: we might ask whether people can predict the outcome a physical interaction (Object Contact Prediction Task, OCP) or whether they find the same video interest. This is what we call a **task**.
+Each task will usually have a different client front end in the `experiments/[task]` directory.
+
+A particular **experiment** is a combination of a dataset and a task. For example, in this repository we show the `dominoes_OCP`. The convention for naming experiments is to use the dataset name followed by a _ followed by the task name.
+Which stimuli are passed to a task are usually determined by an URL parameter when the experiment is loaded in the user's browser.
+
+For each experiment, there are small changes that the researcher might make, for example showing the videos for longer. These different versions of an experiment are called **iterations**. 
+
+| Concept | Example | Correspondence | 
+| --- | --- | --- |
+| **project** | Physion | Repository, name of database ([proj]_stims`,[proj]_resp`) |
+| **dataset** | dominoes | *lives somewhere else* |
+| **task** | OCP | subfolders of `experiments/` |
+| **experiment** | dominoes_OCP | collection in `[proj]_stims` and `[proj]_resp` database |
+| **iteration** | iteration_1 | field of record in database |
+
+## Database organization
+
+A mongoDB instance is ran by an organization (ie. your lab). 
+For each project, there are two databases: `[proj]_stims` and `[proj]_resp`. 
+In the `[proj]_stims` database (for stimuli, what is shown to the user), each collection determines a set of stimuli in a certain order that can be shown to a user ("sesion template"). 
+While running an experiment, this database will only be read from.
+
+The data that is collected during an experiment goes into the `[proj]_resp` database (for responses, which we get from the user).
+There, each document corresponds to a single event that we care about, such as the user giving a single rating to a single video. Each document contains field that allow us to group it into experiments and iterations, etc.
+While running an experiment, this database will only be written into.
+
 
 # Installation
 
@@ -42,34 +79,28 @@ username=myusername #optional, default if unspecified is "cabUser"
 host=myhost #optional, default if unspecified is 127.0.0.1
 port=myport #optional, default if unspecified is 27017
 ```
-## client side
-- jsPsych library
+## client-side tools
+- [jsPsych](https://www.jspsych.org/7.2/)
 
-## server side
-- 
-
-### node.js dependencies
-
-### mongodb setup 
-
+## server-side tools
+- [node.js](https://nodejs.org/en/) 
+- [mongodb](https://www.mongodb.com/)
 
 # Implementing your experiment
 
-## preparing stimuli
-- Uploading your stimuli to S3. 
-- Assumes that you have already generated your stimuli elsewhere.
+## Prepare your stimuli
+This repo assumes that you have already generated your stimuli elsewhere. 
+Once you've done this, check out this [README](stimuli/README.md).
 
-## designing task user interface
-- getting acquainted with jsPsych
-- 
+## Design your task user interface
+Check out this [README](experiments/README.md).
 
-## configuring experiment according to research design
+## Configure your experiment according to research design
 - creating and uploading the experiment config (including projName, expName, iterationName)
 - splitting and batching trials into sessions
 - defining the criteria by which a session is valid.
 
 ## launching your experiment on a web server
-
 
 If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
 
