@@ -74,13 +74,17 @@ function serve() {
       }
       console.log(`got request to insert into ${request.body.dbname}, ${request.body.colname}`);
 
-      const databaseName = request.body.dbname;
-      const collectionName = request.body.colname;
+      var databaseName = request.body.dbname;
+      var collectionName = request.body.colname;
       if (!collectionName) {
         return failure(response, '/db/insert needs collection');
       }
       if (!databaseName) {
         return failure(response, '/db/insert needs database');
+      }
+      if (!databaseName.includes('_resp')) {
+        console.log(`${databaseName}/${collectionName} is not a response database, appending _resp`);
+        databaseName = databaseName.concat('_resp');
       }
 
       const database = connection.db(databaseName);

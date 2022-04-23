@@ -95,9 +95,9 @@ io.on('connection', function (socket) {
   socket.on('currentData', function (data) {
     console.log('currentData received: ' + JSON.stringify(data).substring(0,200));
     // Increment games list in mongo here
-    var proj_name = data.proj_name;
-    var exp_name = data.exp_name;
-    var iter_name = data.iter_name;
+    var proj_name = data.projName;
+    var exp_name = data.expName;
+    var iter_name = data.iterName;
     writeDataToMongo(data, proj_name, exp_name, iter_name);
   });
 });
@@ -172,9 +172,6 @@ var writeDataToMongo = function (data, proj_name, collection, it_name) {
     'http://localhost:' + store_port + '/db/insert',
     {
       json: data,
-      dbname: db,
-      colname: collection,
-      it_name: it_name
     },
     (error, res, body) => {
       if (!error && res.statusCode === 200) {
