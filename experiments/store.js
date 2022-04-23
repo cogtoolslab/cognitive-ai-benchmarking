@@ -6,24 +6,42 @@ const express = require('express');
 const mongodb = require('mongodb');
 const colors = require('colors/safe');
 const ConfigParser = require('configparser');
+const fs = require('fs');
 const config = new ConfigParser();
 const app = express();
+var path = require('path');
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
 
 const settings_file = '../settings.conf';
 config.read(settings_file);
-const DEFAULT_CONFIG_FILE_PATH = config.get('DEFAULTS', 'CONFIG_FILENAME');
-const PORT_NUM = config.get('DEFAULTS', 'MONGODB_PORT');
+const DEFAULT_CONFIG_FILENAME = config.get('DEFAULTS', 'CONFIG_FILENAME');
+const DEFAULT_MONGODB_PORT = config.get('DEFAULTS', 'MONGODB_PORT');
+const DEFAULT_MONGODB_HOST = config.get('DEFAULTS', 'MONGODB_HOST');
+const DEFAULT_MONGODB_USER = config.get('DEFAULTS', 'MONGODB_USER');
 
-const CONFIG_FILE = '/home/'.concat(process.env['USER'], '/', DEFAULT_CONFIG_FILE_PATH);
+var CONFIGFILE;
+if ("CAB_CONFIGFILE" in process.env) {
+  CONFIGFILE = process.env["CAB_CONFIGFILE"]
+} else {
+  CONFIGFILE = path.join(process.env['HOME'], DEFAULT_CONFIG_FILENAME);
+}
 
-config.read(CONFIG_FILE);
-const user = config.get('DB', 'username');
+if (fs.existsSync(CONFIGFILE)) {
+  config.read(CONFIGFILE);
+} else {
+  console.log(`No config exists at path ${CONFIGFILE}, check settings`);
+}
+
+var user;
+if (config.get('DB', 'username')) {
+  user = config.get('DB', 'username');
+} else {
+  user = DEFAULT_MONGODB_USER
+} 
 const pswd = config.get('DB', 'password');
 
-// const mongoCreds = require('./auth.json');
-const mongoURL = `mongodb://${user}:${pswd}@localhost:${PORT_NUM}/`;
+const mongoURL = `mongodb://${user}:${pswd}@${DEFAULT_MONGODB_HOST}:${DEFAULT_MONGODB_PORT}/`;
 
 var argv = require('minimist')(process.argv.slice(2));
 
