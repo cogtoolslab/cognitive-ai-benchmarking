@@ -21,8 +21,10 @@ var store_process;
 
 var cur_path = process.cwd();
 // make sure that we're launching store.js from the right path
-if (cur_path.indexOf('/experiments/') === -1) {
+if (cur_path.indexOf('/experiments') === -1) {
   cur_path = cur_path + '/experiments/';
+} else {
+  cur_path = cur_path + '/';
 }
 
 if (argv.gameport) {
@@ -53,11 +55,11 @@ portastic.find({
   if (argv.local_store) {
     console.log('using local store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [cur_path+'store_local.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', [cur_path+'store_local.js', '--port', store_port], {stdio: 'inherit'});
   } else {
     console.log('using mongoDB store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [cur_path+'store.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', [cur_path+'store.js', '--port', store_port], {stdio: 'inherit'});
   }
 });
 

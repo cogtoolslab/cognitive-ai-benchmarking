@@ -27,9 +27,11 @@
 *.py~
 auth.json
 auth.txt
+.cabconfig
 node_modules/
 features/
 .Rproj.user
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
