@@ -128,7 +128,14 @@ This should be it! When you try out the experiment, your data will be saved on t
 - TODO: In a future release of CAN, we will include a tool that enables you to monitor  which sessions are valid on an ongoing basis ("watchdog"), and automatically recruit more participants as needed to reach a target sample size.
 
 ## Post your experiment to a recruiting platform (e.g., Prolific)
-**TODO: Add information about how to post an experiment to Prolific.**
+- To post your experiment to Prolific, go to [https://www.prolific.co](https://www.prolific.co) and sign in using your lab/organization's account.
+- Click the `New study` tab to create a new study for your experiment. Here are the steps:
+  - give your study a name (title field in the first line), remember that this name is visible to your participants, so please make this title easy to understand (don't use technical terms) and attractive (in order to recruit participants more efficiently).
+  - the internal name (second line) should include some identifier of the experiment, e.g. BACH_dominoes_pilot1, please do not use very generic names like pilot1 because the messaging system only displays the internal name, so it’s hard to know who to poke about messages without diving into the study details.
+  - To include the URL of your study, you can figure it out with the URL parameters (eg. `https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1`) and choose `I'll use URL parameters` for `How do you want to record Prolific IDs`, which will add additional URL parameters that tell us which participant is doing the study. Please run `app.js` and make sure that your study is accessible from the web.
+  - Prolific will suggest a completion code—this can be added into `setup.js` to automatically accept participants who have finished it in Prolific. So please select "I'll redirect them using a URL".
+  - For study cost, please pay attention to the minimum wage in your state.
+  - Then simply open the Prolific study and watch the responses roll in!
 
 # Contributors ✨
 
