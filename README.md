@@ -74,7 +74,7 @@ port=myport #optional, default if unspecified is 27017
 - construct visualizations of response variables w.r.t. key axes of variation in trial metadata
 - verify that experiment 
 
-## run production 
+## post your experiment to a recruiting platform (e.g., Prolific)
 
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
