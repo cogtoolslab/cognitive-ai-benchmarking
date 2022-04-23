@@ -1,11 +1,17 @@
 import sys
 import os
 import configparser
+import pathlib
 import pymongo as pm
 
-from settings import (DEFAULT_CONFIG_FILENAME,
-                      DEFAULT_MONGODB_PORT,
-                      DEFAULT_MONGODB_HOST)
+settings = configparser.ConfigParser()
+this_dir = pathlib.Path(__file__).parent.absolute()
+settings_file = os.path.join(this_dir,
+                             "settings.conf")
+settings.read(settings_file)
+DEFAULT_CONFIG_FILENAME = settings['DEFAULTS']['CONFIG_FILENAME']
+DEFAULT_MONGODB_PORT = settings['DEFAULTS']['MONGODB_PORT']
+DEFAULT_MONGODB_HOST = settings['DEFAULTS']['MONGODB_HOST']
 
 if "CAB_CONFIGFILE" in os.environ:
     CONFIGFILE = os.environ["CAB_CONFIGFILE"]
