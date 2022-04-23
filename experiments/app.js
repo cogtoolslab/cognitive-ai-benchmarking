@@ -21,8 +21,10 @@ var store_process;
 
 var cur_path = process.cwd();
 // make sure that we're launching store.js from the right path
-if (cur_path.indexOf('/experiments/') === -1) {
+if (cur_path.indexOf('/experiments') === -1) {
   cur_path = cur_path + '/experiments/';
+} else {
+  cur_path = cur_path + '/';
 }
 
 if (argv.gameport) {
