@@ -1,6 +1,7 @@
 `OCP` is an example version of the frontend code for the Object Contact Predition Task. It will need a webserver (`app.js`) to serve it (but it can be used to collect data).
 
-`OCP_local` is an example that be used to show the experiment without the webserver, BUT IT CANNOT BE USED TO COLLECT DATA. IT IS ONLY FOR DISPLAY purposes. Doubleclick `OCP_local/index.html` to open it in your browser.
+`OCP_local` is an example that be used to show the experiment without the webserver, BUT IT SHOULD NOT BE USED TO COLLECT DATA as you might loose data when multiple users are using it concurrently. Doubleclick `OCP_local/index.html` to open it in your browser.
+Here, instead of a database, a local `.json` in `stimuli/` is used to read session templates and the results are saved into a `.csv` in `results/`.
 
 To run the experiment, run `node app.js --gameport PORT` where PORT is the port number you want to use. If don't want to use the mongoDB backend, run `node app.js --gameport PORT --local_store`. 
 Note that `--local_store` IS ONLY MEANT FOR TESTING PURPOSES—DO NOT USE THIS FOR LARGE SCALE DATA COLLLECTION.

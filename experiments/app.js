@@ -56,6 +56,7 @@ portastic.find({
     console.log('using local store on port ' + store_port);
     // launch store.js
     store_process = require('child_process').spawn('node', [cur_path+'store_local.js', '--port', store_port], {stdio: 'inherit'});
+    console.log("⚠️ LOCAL STORAGE IS BEING USED. THIS IS NOT RECOMMENDED FOR PRODUCTION. YOU MIGHT LOOSE DATA. USE A DATABASE INSTEAD. ⚠️");
   } else {
     console.log('using mongoDB store on port ' + store_port);
     // launch store.js
