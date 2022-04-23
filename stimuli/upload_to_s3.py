@@ -33,8 +33,8 @@ def create_bucket(client, bucket, location='us-east-2'):
     see below for valid bucket naming conventions:
     https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
     """
-    assert any([x.isupper() for x in bucket]), 'Invalid bucket name. (no uppercase letters in bucket name)'
-    assert '_' in bucket, 'Invalid bucket name. (consider replacing _ with -)'
+    assert all([x.islower() for x in bucket if x.isalpha()]), 'Invalid bucket name. (no uppercase letters in bucket name)'
+    assert '_' not in bucket, 'Invalid bucket name. (consider replacing _ with -)'
     try:
         b = client.create_bucket(Bucket=bucket,
                                  CreateBucketConfiguration={
@@ -86,7 +86,7 @@ def upload(client, bucket, s3_path, local_path, overwrite=False):
     return
 
 
-def get_filepaths(data_root, data_path, multilevel=True):
+def get_filepaths(data_root, data_path, multilevel=True, aws_path_out=False):
     """
     Get filepaths for all files to upload to AWS S3
     
@@ -109,7 +109,9 @@ def get_filepaths(data_root, data_path, multilevel=True):
     else:
         for pth in glob(data_root+data_path):
             filepaths.append(pth)
-    return filepaths
+    if aws_path_out:
+        filepaths = [x.split(data_root)[1] for x in filepaths]
+    return sorted(filepaths)
 
 
 def upload_stim_to_s3(bucket,
@@ -138,5 +140,6 @@ def upload_stim_to_s3(bucket,
     b = create_bucket(client, bucket)
     filepaths = get_filepaths(data_root, data_path)
     for fp in tqdm(filepaths):
-        s3_path = fp.split(data_root)[1]
-        upload(client, bucket, s3_path, fp)
+        if "." in fp:
+            s3_path = fp.split(data_root)[1]
+            upload(client, bucket, s3_path, fp)
