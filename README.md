@@ -8,8 +8,7 @@ Project Template for Implementing Human Behavioral Experiments
 1. [Overview](#overview)
 2. [Installation](#installation)
 3. [Implementing your experiment](#implementing-your-experiment)
-4. [Related Projects](#related-projects)
-5. [Contributors](#contributors)
+4. [Contributors](#contributors)
 
 -----
 # Overview
@@ -130,8 +129,6 @@ This should be it! When you try out the experiment, your data will be saved on t
 
 ## Post your experiment to a recruiting platform (e.g., Prolific)
 **TODO: Add information about how to post an experiment to Prolific.**
-
-# Related Projects
 
 # Contributors ✨
 
