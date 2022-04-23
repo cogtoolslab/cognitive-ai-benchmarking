@@ -20,19 +20,37 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
 Three different modes for using this repo:
-- Example client-side JavaScript code for prototyping tasks quickly
-- Example integration with node.js server for hosting your experiment and writing data to file without a database
-- Example integration with an already running mongodb server
+- Level 1: Example client-side JavaScript code for prototyping tasks quickly
+- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
+- Level 3: Example integration with an already running mongodb server
 
 # Installation
 
-## jsPsych library
-
-## node.js dependencies
-
 ## cabconfig
 
-## mongodb setup 
+To configure your environment for using CAB, you will need to create a config file called `.cabconfig`. 
+The purpose of this file is to define variables that apply to all of your CAB projects (e.g., username and password to access the mongo database).
+By default, this config file should be saved as a hidden file in your home directory, with file path `HOME/.cabconfig`.
+If you want to store this file in a different location, you can specify the path by setting the enviroment variable `CAB_CONFIGFILE` to the desired path.
+
+Here is an example of a `.cabconfig` file, which follows the [INI](https://en.wikipedia.org/wiki/INI_file) file format.
+
+```
+[DB]
+password=mypassword #required
+username=myusername #optional, default if unspecified is "cabUser"
+host=myhost #optional, default if unspecified is 127.0.0.1
+port=myport #optional, default if unspecified is 27017
+```
+## client side
+- jsPsych library
+
+## server side
+- 
+
+### node.js dependencies
+
+### mongodb setup 
 
 
 # Implementing your experiment
@@ -51,7 +69,17 @@ Three different modes for using this repo:
 - defining the criteria by which a session is valid.
 
 ## launching your experiment on a web server
-- make sure you can host your experiment on a web server 
+
+
+If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
+
+First, create a directory in the `stimuli` folder specified by your database name and collection name (e.g. `stimuli/BACH/dominoes/`). 
+
+Then run the `generate_metadata.ipynb` jupyter notebook to generate your stimuli and save the is as a `.json` file in the directory you just created.
+
+Next, run `node app.js --gameport PORT --local_store`. This needs to be ran from the experiments folder (ie. do `cd experiments` before running this).
+
+This should be it! When you try out the experiment, your data will be saved on the server (as opposed to MongoDB) in the direcotry: `results/databaseName_resp/collectionName.csv` (e.g. `results/BACH_resp/dominoes.csv`) that you can check and help you debug.
 
 ## validating data input and output
 - stimuli being correctly read in
@@ -62,7 +90,7 @@ Three different modes for using this repo:
 - construct visualizations of response variables w.r.t. key axes of variation in trial metadata
 - verify that experiment 
 
-## run production 
+## post your experiment to a recruiting platform (e.g., Prolific)
 
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 

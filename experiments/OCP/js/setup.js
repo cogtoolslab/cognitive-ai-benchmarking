@@ -9,7 +9,6 @@ var projName = urlParams.get("projName");
 var expName = urlParams.get("expName");
 var iterName = urlParams.get("iterName");
 var inputID = null; // ID unique to the session served
-// var platform = urlParams.get("platform");
 
 /****************************************************
   If you have any other URL Parameters that you need 
