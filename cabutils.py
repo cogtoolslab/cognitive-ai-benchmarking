@@ -22,6 +22,7 @@ settings.read(settings_file)
 DEFAULT_CONFIG_FILENAME = settings['DEFAULTS']['CONFIG_FILENAME']
 DEFAULT_MONGODB_PORT = settings['DEFAULTS']['MONGODB_PORT']
 DEFAULT_MONGODB_HOST = settings['DEFAULTS']['MONGODB_HOST']
+DEFAULT_MONGODB_USER = settings['DEFAULTS']['MONGODB_USER']
 
 #load the user-level config file
 #location of this file can be set by environment variable "CAB_CONFIGFILE"
@@ -83,7 +84,23 @@ def get_db_host():
         return configs['DB']['host']
     else:
         return DEFAULT_MONGODB_HOST
-    
+
+
+def get_db_user():
+    """get db user, either from config file if specified, otherwise default
+       to specify host in DB file, .cabconfig should have a section of the form:
+
+       [DB]
+           ...
+       username=DESIRED_USERNAME
+           ...
+    """
+    configs = get_cab_configs()
+    if 'username' in configs['DB']:
+        return configs['DB']['username']
+    else:
+        return DEFAULT_MONGODB_USER
+
 
 def get_db_connection():
     """get DB connection.  
@@ -95,7 +112,7 @@ def get_db_connection():
        password=[...]  
     """
     configs = get_cab_configs()
-    user = configs['DB']['username']
+    user = get_db_user()
     pwd = configs['DB']['password']
     host = get_db_host()
     port = get_db_port()
