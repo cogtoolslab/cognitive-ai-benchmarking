@@ -1,4 +1,4 @@
-metadata = {
+experimentConfig = {
     "gameid": "0632-7d465f5a-90e7-4af3-828d-d2bacbe9e168",
     "stims": {
         "0": {
