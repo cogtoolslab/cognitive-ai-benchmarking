@@ -19,21 +19,21 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
-## Repo organizatoin
+## Repo organization
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
 - `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
 - `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
 - `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
-- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.)
+- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.) This is also where the scripts that determine the order the images or videos are presented in the experiment are located.
 
 ## Different ways to use this repo
 
 The examples in this repo have been organized in a modular fashion: you can either use  the entire stack or mix and match components of this stack with other tools if you prefer.
 
-- Level 1: Example client-side JavaScript code for prototyping tasks quickly
-- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
-- Level 3: Example integration with an already running mongodb server
+- Level 1: Example client-side JavaScript code for prototyping tasks quickly (see `experiments/OCP`)
+- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database (see `app.js --local_storage`)
+- Level 3: Example integration with an already running mongodb server (`app.js`)
 
 ## The central concepts in this repo
 
@@ -72,7 +72,7 @@ While running an experiment, this database will only be written into.
 
 # Installation
 
-## Configruation
+## Configuration
 
 To configure your environment for using CAB, you will need to create a config file called `.cabconfig`. 
 The purpose of this file is to define variables that apply to all of your CAB projects (e.g., username and password to access the mongo database).
