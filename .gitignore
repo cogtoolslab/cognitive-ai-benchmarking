@@ -24,6 +24,7 @@
 *.key
 *.h5
 *.npy
+*.py~
 auth.json
 auth.txt
 node_modules/
