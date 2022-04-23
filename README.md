@@ -8,8 +8,7 @@ Project Template for Implementing Human Behavioral Experiments
 1. [Overview](#overview)
 2. [Installation](#installation)
 3. [Implementing your experiment](#implementing-your-experiment)
-4. [Related Projects](#related-projects)
-5. [Contributors](#contributors)
+4. [Contributors](#contributors)
 
 -----
 # Overview
@@ -129,10 +128,7 @@ This should be it! When you try out the experiment, your data will be saved on t
 - TODO: In a future release of CAN, we will include a tool that enables you to monitor  which sessions are valid on an ongoing basis ("watchdog"), and automatically recruit more participants as needed to reach a target sample size.
 
 ## Post your experiment to a recruiting platform (e.g., Prolific)
-
-
-
-# Related Projects
+**TODO: Add information about how to post an experiment to Prolific.**
 
 # Contributors ✨
 
