@@ -3,8 +3,13 @@ To configure your environment for using CAB, you will need to create a config fi
 Currently, the file contains information about access to the mongodb used for stimulus and result storage.  
 
 ##########example contents for .cabconfig file
+
 [DB]
+
 password=mypassword #required
+
 username=myusername #optional, default if unspecified is "cabUser"
+
 host=myhost #optional, default if unspecified is 127.0.0.1
+
 port=myport #optional, default if unspecified is 27017
