@@ -1,6 +1,9 @@
-Directory to contain experiment code (e.g., HTML/CSS/JavaScript) for this project.
+`OCP` is an example version of the frontend code for the Object Contact Predition Task. It will need a webserver (`app.js`) to serve it (but it can be used to collect data).
 
-To run the experiment, run `node app.js --gameport PORT` where PORT is the port number you want to use. If don't want to use the mongoDB backend (we recommend using the mongoDB backend), run `node app.js --gameport PORT --local_store`. 
+`OCP_local` is an example that be used to show the experiment without the webserver, BUT IT CANNOT BE USED TO COLLECT DATA. IT IS ONLY FOR DISPLAY purposes. Doubleclick `OCP_local/index.html` to open it in your browser.
+
+To run the experiment, run `node app.js --gameport PORT` where PORT is the port number you want to use. If don't want to use the mongoDB backend, run `node app.js --gameport PORT --local_store`. 
+Note that `--local_store` IS ONLY MEANT FOR TESTING PURPOSES—DO NOT USE THIS FOR LARGE SCALE DATA COLLLECTION.
 This needs to be ran from the experiments folder (ie. do `cd experiments` before running this).
 Only one version of `app.js` needs to be run for all experiments.
 
