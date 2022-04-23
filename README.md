@@ -26,10 +26,6 @@ Three different modes for using this repo:
 
 # Installation
 
-## jsPsych library
-
-## node.js dependencies
-
 ## cabconfig
 
 To configure your environment for using CAB, you will need to create a config file called `.cabconfig`. 
@@ -46,8 +42,15 @@ username=myusername #optional, default if unspecified is "cabUser"
 host=myhost #optional, default if unspecified is 127.0.0.1
 port=myport #optional, default if unspecified is 27017
 ```
+## client side
+- jsPsych library
 
-## mongodb setup 
+## server side
+- 
+
+### node.js dependencies
+
+### mongodb setup 
 
 
 # Implementing your experiment
@@ -66,7 +69,17 @@ port=myport #optional, default if unspecified is 27017
 - defining the criteria by which a session is valid.
 
 ## launching your experiment on a web server
-- make sure you can host your experiment on a web server 
+
+
+If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
+
+First, create a directory in the `stimuli` folder specified by your database name and collection name (e.g. `stimuli/BACH/dominoes/`). 
+
+Then run the `generate_metadata.ipynb` jupyter notebook to generate your stimuli and save the is as a `.json` file in the directory you just created.
+
+Next, run `node app.js --gameport PORT --local_store`. This needs to be ran from the experiments folder (ie. do `cd experiments` before running this).
+
+This should be it! When you try out the experiment, your data will be saved on the server (as opposed to MongoDB) in the direcotry: `results/databaseName_resp/collectionName.csv` (e.g. `results/BACH_resp/dominoes.csv`) that you can check and help you debug.
 
 ## validating data input and output
 - stimuli being correctly read in
