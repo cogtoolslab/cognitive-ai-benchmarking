@@ -57,7 +57,7 @@ def get_cab_configs():
 def get_db_port():
     """get db port, either from config file if specified, otherwise default
        to specify port in DB file, .cabconfig should have a section of the form:
-       
+
        [DB]
            ...
        port=DESIRED_PORT
@@ -102,14 +102,14 @@ def get_db_user():
         return DEFAULT_MONGODB_USER
 
 
-def get_db_connection():
-    """get DB connection.  
-       user-level config file must exist (see above) and have a 
+def get_db_connection(connectionTimeoutMS=5000):
+    """get DB connection.
+       user-level config file must exist (see above) and have a
        section with the form:
 
        [DB]
        username=[...]
-       password=[...]  
+       password=[...]
     """
     configs = get_cab_configs()
     user = get_db_user()
@@ -118,7 +118,9 @@ def get_db_connection():
     port = get_db_port()
     connstr = "mongodb://%s:%s@%s:%s" % (user, pwd, host, port)
     try:
-        conn = pm.MongoClient(connstr)
+        conn = pm.MongoClient(connstr, serverSelectionTimeoutMS=connectionTimeoutMS)
+        print("Checking database connection...")
+        conn.server_info()
     except:
         print('Could not connect to database. Have you set up your SSH tunnel?')
         sys.exit()
