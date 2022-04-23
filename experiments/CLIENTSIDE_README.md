@@ -12,7 +12,7 @@ For the purposes of this tutorial, let's imagine that in your experiment, someon
 You can access different experiments based on the url structure. At a high level, the URL structure looks like:
 
 ```
-<server_name>.com/<experiment_folder>/index.html?projName=<PROJECT NAME>&expName=<EXPERIMENT NAME>&iterName=<ITERATION NAME>
+<server_name>.com/<port number>:<experiment_folder>/index.html?projName=<PROJECT NAME>&expName=<EXPERIMENT NAME>&iterName=<ITERATION NAME>
 ```
 
 The `projName`, `expName` and `iterName` are variables that will be used to retrieve your session template from MongoDB, and should correspond to the
