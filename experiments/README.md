@@ -26,8 +26,15 @@ For example, use [https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH
 - Configure HIT settings using nosub: https://github.com/longouyang/nosub
 - Test task out in MTurk Sandbox
 
-### Using Prolific? 
-- `TODO: add instructions here`
+### Using Prolific
+The example study is set up to use Prolific. To submit it, run `app.js` and make sure that your study is accessible from the web.
+Then, figure out the URL with the URL parameters (eg. `https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1`) and add this to a Prolific study.
+Select "I'll use URL parameters" in the Prolific form, which will add additional URL parameters that tell us which participant is doing the study.
+Prolific will suggest a completion code—this can be added into `setup.js:504` to automatically accept participants who have finished it in Prolific. 
+Issue #62 aims to make this process easier.
+
+Then simply open the Prolific study and watch the responses roll in.
+
 
 ### Want to just look at the experiment? 
 You can navigate to `dominoes_local` to locally run the experiment by clicking on `index.html`
