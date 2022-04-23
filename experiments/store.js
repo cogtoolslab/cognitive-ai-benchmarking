@@ -5,12 +5,43 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const mongodb = require('mongodb');
 const colors = require('colors/safe');
-
+const ConfigParser = require('configparser');
+const fs = require('fs');
+const config = new ConfigParser();
 const app = express();
+var path = require('path');
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
-const mongoCreds = require('./auth.json');
-const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
+
+const settings_file = '../settings.conf';
+config.read(settings_file);
+const DEFAULT_CONFIG_FILENAME = config.get('DEFAULTS', 'CONFIG_FILENAME');
+const DEFAULT_MONGODB_PORT = config.get('DEFAULTS', 'MONGODB_PORT');
+const DEFAULT_MONGODB_HOST = config.get('DEFAULTS', 'MONGODB_HOST');
+const DEFAULT_MONGODB_USER = config.get('DEFAULTS', 'MONGODB_USER');
+
+var CONFIGFILE;
+if ("CAB_CONFIGFILE" in process.env) {
+  CONFIGFILE = process.env["CAB_CONFIGFILE"]
+} else {
+  CONFIGFILE = path.join(process.env['HOME'], DEFAULT_CONFIG_FILENAME);
+}
+
+if (fs.existsSync(CONFIGFILE)) {
+  config.read(CONFIGFILE);
+} else {
+  console.log(`No config exists at path ${CONFIGFILE}, check settings`);
+}
+
+var user;
+if (config.get('DB', 'username')) {
+  user = config.get('DB', 'username');
+} else {
+  user = DEFAULT_MONGODB_USER
+} 
+const pswd = config.get('DB', 'password');
+
+const mongoURL = `mongodb://${user}:${pswd}@${DEFAULT_MONGODB_HOST}:${DEFAULT_MONGODB_PORT}/`;
 
 var argv = require('minimist')(process.argv.slice(2));
 
@@ -56,7 +87,7 @@ function markAnnotation(collection, gameid, sketchid) {
     if (err) {
       console.log(`error marking annotation data: ${err}`);
     } else {
-      console.log(`successfully marked annotation. result: ${JSON.stringify(items)}`);
+      console.log(`successfully marked annotation. result: ${JSON.stringify(items).substring(0,200)}`);
     }
   });
 };
@@ -72,15 +103,19 @@ function serve() {
       if (!request.body) {
         return failure(response, '/db/insert needs post request body');
       }
-      console.log(`got request to insert into ${request.body.colname}`);
+      console.log(`got request to insert into ${request.body.dbname}, ${request.body.colname}`);
 
-      const databaseName = request.body.dbname;
-      const collectionName = request.body.colname;
+      var databaseName = request.body.dbname;
+      var collectionName = request.body.colname;
       if (!collectionName) {
         return failure(response, '/db/insert needs collection');
       }
       if (!databaseName) {
         return failure(response, '/db/insert needs database');
+      }
+      if (!databaseName.includes('_resp')) {
+        console.log(`${databaseName}/${collectionName} is not a response database, appending _resp`);
+        databaseName = databaseName.concat('_resp');
       }
 
       const database = connection.db(databaseName);
@@ -98,7 +133,7 @@ function serve() {
         if (err) {
           return failure(response, `error inserting data: ${err}`);
         } else {
-          return success(response, `successfully inserted data. result: ${JSON.stringify(result)}`);
+          return success(response, `successfully inserted data. result: ${JSON.stringify(result).substring(0,200)}`);
         }
       });
     });
@@ -167,7 +202,7 @@ function serve() {
         collectionList.forEach(function (collectionName) {
           checkCollectionForHits(collectionName, query, projection, function (res) {
             log(`got request to find_one in ${collectionName} with` +
-              ` query ${JSON.stringify(query)} and projection ${JSON.stringify(projection)}`);
+              ` query ${JSON.stringify(query).substring(0,200)} and projection ${JSON.stringify(projection).substring(0,200)}`);
             doneCounter += 1;
             results += res;
             if (doneCounter === collectionList.length) {

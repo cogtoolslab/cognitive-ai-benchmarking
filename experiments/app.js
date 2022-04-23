@@ -19,9 +19,26 @@ var gameport;
 var store_port;
 var store_process;
 
+var cur_path = process.cwd();
+// make sure that we're launching store.js from the right path
+if (cur_path.indexOf('/experiments') === -1) {
+  cur_path = cur_path + '/experiments/';
+} else {
+  cur_path = cur_path + '/';
+}
+
 if (argv.gameport) {
-  gameport = argv.gameport;
-  console.log('using public facing port ' + gameport);
+  try {
+    if ((argv.gameport < 8850) || (argv.gameport > 8999)) {
+      throw 'error';
+    } else {
+      gameport = argv.gameport;
+      console.log('using public facing port ' + gameport);
+    }
+  } catch (err) {
+    console.log('invalid gameport: choose a gameport between 8850 and 8999');
+    process.exit();
+  }
 } else {
   gameport = 8886;
   console.log('no gameport specified: using 8886\nUse the --gameport flag to change');
@@ -38,11 +55,11 @@ portastic.find({
   if (argv.local_store) {
     console.log('using local store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', ['store_local.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', [cur_path+'store_local.js', '--port', store_port], {stdio: 'inherit'});
   } else {
     console.log('using mongoDB store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', ['store.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', [cur_path+'store.js', '--port', store_port], {stdio: 'inherit'});
   }
 });
 
@@ -78,11 +95,11 @@ io.on('connection', function (socket) {
   });
   // write data to db upon getting current data
   socket.on('currentData', function (data) {
-    console.log('currentData received: ' + JSON.stringify(data));
+    console.log('currentData received: ' + JSON.stringify(data).substring(0,200));
     // Increment games list in mongo here
-    var proj_name = data.proj_name;
-    var exp_name = data.exp_name;
-    var iter_name = data.iter_name;
+    var proj_name = data.projName;
+    var exp_name = data.expName;
+    var iter_name = data.iterName;
     writeDataToMongo(data, proj_name, exp_name, iter_name);
   });
 });
@@ -124,6 +141,7 @@ function initializeWithTrials(socket, proj_name, collection, it_name) {
       // send trial list (and id) to client
       var packet = {
         gameid: gameid,
+        inputid: body['_id'], // using the mongo record ID
         stims: omit(body.stims, ['_id']),
         familiarization_stims: omit(body.familiarization_stims, ['_id']),
         stim_version: body.stim_version, //TODO fix stim version
@@ -156,9 +174,6 @@ var writeDataToMongo = function (data, proj_name, collection, it_name) {
     'http://localhost:' + store_port + '/db/insert',
     {
       json: data,
-      dbname: db,
-      colname: collection,
-      it_name: it_name
     },
     (error, res, body) => {
       if (!error && res.statusCode === 200) {

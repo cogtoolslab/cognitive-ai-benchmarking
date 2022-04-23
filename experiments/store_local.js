@@ -6,6 +6,7 @@ const express = require('express');
 const fs = require('fs');
 const colors = require('colors/safe');
 const json2csv = require('json2csv').parse;
+const path = require('path');
 const app = express();
 var argv = require('minimist')(process.argv.slice(2));
 
@@ -32,6 +33,7 @@ const write = async (filename, data) => {
     let rows;
     // If file doesn't exist, we will create new file and add rows with headers.    
     if (!fs.existsSync(filename)) {
+        fs.mkdirSync(path.dirname(filename));
         rows = json2csv(data, { header: true });
     } else {
         // Rows without headers.
@@ -64,10 +66,10 @@ function serve() {
 
       const data = _.omit(request.body, ['colname', 'dbname']);
 
-      const ResponsePath = '../results/'.concat(databaseName, '/', collectionName, '.csv');
+      const ResponsePath = path.resolve(__dirname, `../results/${databaseName}_resp/${collectionName}.csv`);
       var data_csv = [data];
       write(ResponsePath, data_csv);
-      console.log(`inserting data: ${JSON.stringify(data)}`);
+      console.log(`inserting data: ${JSON.stringify(data).substring(0,200)}`);
     });
 
     app.post('/db/getstims', (request, response) => {
@@ -85,7 +87,7 @@ function serve() {
         return failure(response, '/db/getstims needs database');
       }
 
-      const StimuliPath = '../stimuli/'.concat(databaseName, '/', collectionName, '.json');
+      const StimuliPath = path.resolve(__dirname, `../stimuli/${databaseName}/${collectionName}.json`);
       var stimuli = require(StimuliPath);
       response.send(stimuli);
     });  
