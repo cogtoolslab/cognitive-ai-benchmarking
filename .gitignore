@@ -27,6 +27,7 @@
 *.py~
 auth.json
 auth.txt
+.cabconfig
 node_modules/
 features/
 .Rproj.user
