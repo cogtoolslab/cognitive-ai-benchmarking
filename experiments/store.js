@@ -56,7 +56,7 @@ function markAnnotation(collection, gameid, sketchid) {
     if (err) {
       console.log(`error marking annotation data: ${err}`);
     } else {
-      console.log(`successfully marked annotation. result: ${JSON.stringify(items)}`);
+      console.log(`successfully marked annotation. result: ${JSON.stringify(items).substring(0,200)}`);
     }
   });
 };
@@ -98,7 +98,7 @@ function serve() {
         if (err) {
           return failure(response, `error inserting data: ${err}`);
         } else {
-          return success(response, `successfully inserted data. result: ${JSON.stringify(result)}`);
+          return success(response, `successfully inserted data. result: ${JSON.stringify(result).substring(0,200)}`);
         }
       });
     });
@@ -167,7 +167,7 @@ function serve() {
         collectionList.forEach(function (collectionName) {
           checkCollectionForHits(collectionName, query, projection, function (res) {
             log(`got request to find_one in ${collectionName} with` +
-              ` query ${JSON.stringify(query)} and projection ${JSON.stringify(projection)}`);
+              ` query ${JSON.stringify(query).substring(0,200)} and projection ${JSON.stringify(projection).substring(0,200)}`);
             doneCounter += 1;
             results += res;
             if (doneCounter === collectionList.length) {
