@@ -14,18 +14,18 @@ Each step is broken down in more detail below. The ipynb code examples make use 
 Step 1 above is assumed to be completed on your end before use of the code in this repo.
 
 ## Step 2 - Upload stimulus to AWS S3
-The purpose of this step is to host your stimuli on AWS s3 so you have a semi-permanent link to refer to each stimulus. These links will be used when running the online experiment to retrieve the necessary stimulus for each trial and present the stimulus to the participants. 
+The purpose of this step is to host your stimuli on AWS S3 so you have a semi-permanent link to refer to each stimulus. These links will be used when running the online experiment to retrieve the necessary stimulus for each trial and present the stimulus to the participants. 
 
-Step 2 is handled by the function upload_stim_to_s3 in upload_to_s3.py. This function takes 5 inputs:
-- bucket: string, name of AWS s3 bucket to write to
+Step 2 is handled by the function `upload_stim_to_s3` in `upload_to_s3.py`. This function takes 5 inputs:
+- `bucket`: string, name of AWS s3 bucket to write to
 
-- pth_to_s3_credentials: string, path to AWS credentials file
+- `pth_to_s3_credentials`: string, path to AWS credentials file
 
-- data_root: string, root path for data to upload
+- `data_root`: string, root path for data to upload
 
-- data_path: string, path in data_root to be included in upload.
+- `data_path`: string, path in data_root to be included in upload.
 
-- multilevel: True for multilevel directory structures, False if all data is stored in one directory
+- `multilevel`: True for multilevel directory structures, False if all data is stored in one directory
 
 For a simple data directory with all to-be-uploaded files stored in data_root without any sub-directories, data_path should simply be *
     
@@ -35,7 +35,7 @@ For a multi-level directory structure, you will need to use glob * and ** notati
     /path/to/your/files/**/another_dir/* (this finds all the files contained in all sub-directories named another_dir)
     /path/to/your/files/**/another_dir/*png (this finds all the pngs contained in all sub-directories named another_dir)
 
-Example code to call upload_to_s3.py can be found in upload_to_s3_example.ipynb
+Example code to call `upload_to_s3.py` can be found in `upload_to_s3_example.ipynb`
 
 ## Step 3 - Experiment Configuration
 The purpose of this step is to compile all relevant metadata for all stimuli into a single omnibus dataframe, chunk the full stimulus set into smaller batches that are the appropriate size to be shown to a single participant within the allotted time for your experiment, save local copies of the batched dataframes, and upload the dataframes to MongoDB for use in the actual experiment interface.
@@ -44,23 +44,23 @@ Chunking the full stimulus set into smaller batches is usually necessary so indi
 
 Another relevant feature of Experiment Configuration is the inclusion of familiarization stimuli to let participants practice the task before beginning the real experiment. These appear at the beginning of the experiment either after or interleaved with the instructions for the task. This code assumes all subjects will see the same set of familiarization stimuli. These will be specified as an input to the experiment configuration function in the form of a list of filenames. Note that when selecting your batch size, make sure to subtract the number of familiarization stimuli from the total stimulus set size before determining a multiple of the stimulus set size as your batch size.
 
-Step 3 is handled by experiment_config.py. To load the relevant metadata into a dataframe, batch it into individual session dataframes, save local JSONs for each batch, and upload the dataframes to MongoDB, call the function experiment_file_setup. This function takes 7 inputs:
+Step 3 is handled by `experiment_config.py`. To load the relevant metadata into a dataframe, batch it into individual session dataframes, save local JSONs for each batch, and upload the dataframes to MongoDB, call the function `experiment_file_setup`. This function takes 7 inputs:
 
-- bucket: string, name of AWS s3 bucket to write to (same as Step 2)
+- `bucket`: string, name of AWS s3 bucket to write to (same as Step 2)
     
-- data_root: string, root path for data to upload (same as Step 2)
+- `data_root`: string, root path for data to upload (same as Step 2)
     
-- data_path: string, path in data_root to be included in upload. (same as Step 2)
+- `data_path`: string, path in data_root to be included in upload. (same as Step 2)
     
-- multilevel: True for multilevel directory structures, False if all data is stored in one directore (same as Step 2)
+- `multilevel`: True for multilevel directory structures, False if all data is stored in one directore (same as Step 2)
     
-- meta_file: string, path to a JSON file that contains all the relevant metadata for each stimulus.
+- `meta_file`: string, path to a JSON file that contains all the relevant metadata for each stimulus.
     
-- fam_trial_ids: fam_trial_ids: list of strings, stim_id for familiarization stimuli shown to participants before the experiment to familiarize them with the task
+- `fam_trial_ids`: fam_trial_ids: list of strings, stim_id for familiarization stimuli shown to participants before the experiment to familiarize them with the task
 
-- batch_set_size: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size)
+- `batch_set_size`: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size)
     
-Example code to call experiment_config.py can be found in experiment_config_example.ipynb 
+Example code to call `experiment_config.py` can be found in `experiment_config_example.ipynb` 
 
 
 stimuli code and documentation contributed by Thomas O'Connell
