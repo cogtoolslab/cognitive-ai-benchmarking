@@ -1,26 +1,42 @@
+"""
+CAB-level utils
+"""
 import sys
 import os
 import configparser
 import pathlib
 import pymongo as pm
 
+#########################
+########GENERAL##########
+#########################
+
+#load default settings
 settings = configparser.ConfigParser()
 this_dir = pathlib.Path(__file__).parent.absolute()
 settings_file = os.path.join(this_dir,
                              "settings.conf")
 settings.read(settings_file)
+
+#expose several specific default settings
 DEFAULT_CONFIG_FILENAME = settings['DEFAULTS']['CONFIG_FILENAME']
 DEFAULT_MONGODB_PORT = settings['DEFAULTS']['MONGODB_PORT']
 DEFAULT_MONGODB_HOST = settings['DEFAULTS']['MONGODB_HOST']
 
+#load the user-level config file
+#location of this file can be set by environment variable "CAB_CONFIGFILE"
+#or it can be the default location ~/.cabconfig
 if "CAB_CONFIGFILE" in os.environ:
     CONFIGFILE = os.environ["CAB_CONFIGFILE"]
 else:
     CONFIGFILE = os.path.join(os.environ["HOME"],
                               DEFAULT_CONFIG_FILENAME)
 
+
 _cab_configs = None
 def get_cab_configs():
+    """actually get the user-level cab configs
+    """
     global _cab_configs
     if _cab_configs is None:
         config = configparser.ConfigParser()
@@ -29,7 +45,19 @@ def get_cab_configs():
     return _cab_configs
 
 
+#########################
+########MONGODB##########
+#########################
+
 def get_db_port():
+    """get db port, either from config file if specified, otherwise default
+       to specify port in DB file, .cabconfig should have a section of the form:
+       
+       [DB]
+           ...
+       port=DESIRED_PORT
+           ...
+    """
     configs = get_cab_configs()
     if 'port' in configs['DB']:
         return configs['DB']['port']
@@ -38,6 +66,14 @@ def get_db_port():
 
 
 def get_db_host():
+    """get db host, either from config file if specified, otherwise default
+       to specify host in DB file, .cabconfig should have a section of the form:
+
+       [DB]
+           ...
+       host=DESIRED_HOST
+           ...
+    """
     configs = get_cab_configs()
     if 'host' in configs['DB']:
         return configs['DB']['host']
@@ -46,6 +82,14 @@ def get_db_host():
     
 
 def get_db_connection():
+    """get DB connection.  
+       user-level config file must exist (see above) and have a 
+       section with the form:
+
+       [DB]
+       username=[...]
+       password=[...]  
+    """
     configs = get_cab_configs()
     user = configs['DB']['username']
     pwd = configs['DB']['password']
