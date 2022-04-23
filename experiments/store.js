@@ -13,14 +13,14 @@ const MongoClient = mongodb.MongoClient;
 
 const settings_file = '../settings.conf';
 config.read(settings_file);
-const CONFIG_FILE_PATH = config.get('DEFAULTS', 'CONFIG_FILENAME');
+const DEFAULT_CONFIG_FILE_PATH = config.get('DEFAULTS', 'CONFIG_FILENAME');
 const PORT_NUM = config.get('DEFAULTS', 'MONGODB_PORT');
 
-const CONFIG_FILE = '/home/'.concat(process.env['USER'], '/', CONFIG_FILE_PATH);
+const CONFIG_FILE = '/home/'.concat(process.env['USER'], '/', DEFAULT_CONFIG_FILE_PATH);
 
 config.read(CONFIG_FILE);
-const user = config.get('User1', 'user');
-const pswd = config.get('User1', 'pswd');
+const user = config.get('DB', 'username');
+const pswd = config.get('DB', 'password');
 
 // const mongoCreds = require('./auth.json');
 const mongoURL = `mongodb://${user}:${pswd}@localhost:${PORT_NUM}/`;
