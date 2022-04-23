@@ -19,11 +19,21 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
-## Three different modes for using this repo:
+## Repo organizatoin
+It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
+
+- `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
+- `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
+- `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
+- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.)
+
+## Different ways to use this repo
+
+The examples in this repo have been organized in a modular fashion: you can either use  the entire stack or mix and match components of this stack with other tools if you prefer.
+
 - Level 1: Example client-side JavaScript code for prototyping tasks quickly
 - Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
 - Level 3: Example integration with an already running mongodb server
-
 
 ## The central concepts in this repo
 
@@ -60,10 +70,9 @@ The data that is collected during an experiment goes into the `[proj]_resp` data
 There, each document corresponds to a single event that we care about, such as the user giving a single rating to a single video. Each document contains field that allow us to group it into experiments and iterations, etc.
 While running an experiment, this database will only be written into.
 
-
 # Installation
 
-## cabconfig
+## Configruation
 
 To configure your environment for using CAB, you will need to create a config file called `.cabconfig`. 
 The purpose of this file is to define variables that apply to all of your CAB projects (e.g., username and password to access the mongo database).
@@ -79,10 +88,10 @@ username=myusername #optional, default if unspecified is "cabUser"
 host=myhost #optional, default if unspecified is 127.0.0.1
 port=myport #optional, default if unspecified is 27017
 ```
-## client-side tools
+## Client-side tools
 - [jsPsych](https://www.jspsych.org/7.2/)
 
-## server-side tools
+## Server-side tools
 - [node.js](https://nodejs.org/en/) 
 - [mongodb](https://www.mongodb.com/)
 
@@ -112,23 +121,16 @@ Next, run `node app.js --gameport PORT --local_store`. This needs to be ran from
 
 This should be it! When you try out the experiment, your data will be saved on the server (as opposed to MongoDB) in the direcotry: `results/databaseName_resp/collectionName.csv` (e.g. `results/BACH_resp/dominoes.csv`) that you can check and help you debug.
 
-## validating data input and output
-- stimuli being correctly read in
-- verify that all trial metadata and response variables are being read out 
-- monitoring which sessions are valid on an ongoing basis ("watchdog")
+## Validate data input
+- Once you launch the experiment, test it out and verify that your stimuli are being read in properly from mongodb.
 
-## analyze experiment outputs 
-- construct visualizations of response variables w.r.t. key axes of variation in trial metadata
-- verify that experiment 
+## Validate data output
+- Next, you will want to verify that all trial metadata and response variables are being written out properly to mongodb. For example, a good first step is to adapt the following example notebook that constructs exploratory visualizations of response variables w.r.t. key axes of variation in your stimuli.
+- TODO: In a future release of CAN, we will include a tool that enables you to monitor  which sessions are valid on an ongoing basis ("watchdog"), and automatically recruit more participants as needed to reach a target sample size.
 
-## post your experiment to a recruiting platform (e.g., Prolific)
+## Post your experiment to a recruiting platform (e.g., Prolific)
 
-It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
-- `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
-- `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
-- `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
-- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.)
 
 # Related Projects
 
