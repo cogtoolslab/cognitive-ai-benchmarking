@@ -5,7 +5,64 @@ Project Template for Implementing Human Behavioral Experiments
 [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-This is a fully worked example based on the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Implementing your experiment](#implementing-your-experiment)
+4. [Related Projects](#related-projects)
+5. [Contributors](#contributors)
+
+-----
+# Overview
+
+The purpose of this repo is to provide a starting point for researchers planning to conduct a Cognitive-AI Benchmarking (CAB) project. 
+A CAB project will typically combine three elements: (1) stimulus generation; (2) human behavioral experiments; (3) analysis of behavioral data and comparison to model outputs. 
+
+The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
+
+Three different modes for using this repo:
+- Example client-side JavaScript code for prototyping tasks quickly
+- Example integration with node.js server for hosting your experiment and writing data to file without a database
+- Example integration with an already running mongodb server
+
+# Installation
+
+## jsPsych library
+
+## node.js dependencies
+
+## cabconfig
+
+## mongodb setup 
+
+
+# Implementing your experiment
+
+## preparing stimuli
+- Uploading your stimuli to S3. 
+- Assumes that you have already generated your stimuli elsewhere.
+
+## designing task user interface
+- getting acquainted with jsPsych
+- 
+
+## configuring experiment according to research design
+- creating and uploading the experiment config (including projName, expName, iterationName)
+- splitting and batching trials into sessions
+- defining the criteria by which a session is valid.
+
+## launching your experiment on a web server
+- make sure you can host your experiment on a web server 
+
+## validating data input and output
+- stimuli being correctly read in
+- verify that all trial metadata and response variables are being read out 
+- monitoring which sessions are valid on an ongoing basis ("watchdog")
+
+## analyze experiment outputs 
+- construct visualizations of response variables w.r.t. key axes of variation in trial metadata
+- verify that experiment 
+
+## run production 
 
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
@@ -14,9 +71,9 @@ It contains several subdirectories that will contain standard components of the 
 - `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
 - `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.)
 
+# Related Projects
 
-
-## Contributors ✨
+# Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
