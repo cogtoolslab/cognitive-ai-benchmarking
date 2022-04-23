@@ -23,14 +23,19 @@ function logTrialtoDB(data) {
   data.colname = expName;
   data.iterationName = iterName;
   data.inputid = inputID;
+  data.projName = projName;
+  data.expName = expName;
+  data.sessionID = sessionID;
+  data.studyID = studyID;
+
   if (DEBUG_MODE) {
     console.log(
       "Logging data to db: " +
-      projName +
-      "\tcol: " +
-      expName +
-      "\titeration: " +
-      iterName
+        projName +
+        "\tcol: " +
+        expName +
+        "\titeration: " +
+        iterName
     );
     console.log("Data: " + data);
   }
@@ -199,7 +204,7 @@ function buildAndRunExperiment(experimentConfig) {
       trial.trial_duration = Math.random() * 1000 + 500; //random duration in milliseconds
     },
     post_trial_gap: 0,
-    on_finish: () => { }, // do nothing on trial end
+    on_finish: () => {}, // do nothing on trial end
   };
 
   // set up familiarization trials
@@ -240,7 +245,7 @@ function buildAndRunExperiment(experimentConfig) {
         width: 500,
         height: 500,
         post_trial_gap: 0,
-        on_finish: () => { }, //do nothing after trial shown
+        on_finish: () => {}, //do nothing after trial shown
         prolificID: prolificID,
         studyID: studyID,
         sessionID: sessionID,
@@ -484,8 +489,8 @@ function buildAndRunExperiment(experimentConfig) {
       //write the score to HTML
       trial.pages = [
         "Congrats! You are all done. Thanks for participating in our game.  You've gotten " +
-        _.round((correct / total) * 100, 0) +
-        "% correct🎉! Click 'Next' to submit this study.",
+          _.round((correct / total) * 100, 0) +
+          "% correct🎉! Click 'Next' to submit this study.",
       ];
     },
     show_clickable_nav: true,
