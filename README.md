@@ -20,9 +20,9 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
 Three different modes for using this repo:
-- Example client-side JavaScript code for prototyping tasks quickly
-- Example integration with node.js server for hosting your experiment and writing data to file without a database
-- Example integration with an already running mongodb server
+- Level 1: Example client-side JavaScript code for prototyping tasks quickly
+- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
+- Level 3: Example integration with an already running mongodb server
 
 # Installation
 
