@@ -24,10 +24,6 @@ function log(text) {
   console.log(makeMessage(text));
 }
 
-function error(text) {
-  console.error(makeMessage(text));
-}
-
 function failure(response, text) {
   const message = makeMessage(text);
   console.error(message);
