@@ -8,6 +8,7 @@ var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular subm
 var projName = urlParams.get("projName");
 var expName = urlParams.get("expName");
 var iterName = urlParams.get("iterName");
+var inputID = null; // ID unique to the session served
 // var platform = urlParams.get("platform");
 
 /****************************************************
@@ -21,6 +22,12 @@ function logTrialtoDB(data) {
   data.dbname = projName;
   data.colname = expName;
   data.iterationName = iterName;
+  data.inputid = inputID;
+  data.projName = projName;
+  data.expName = expName;
+  data.sessionID = sessionID;
+  data.studyID = studyID;
+
   if (DEBUG_MODE) {
     console.log(
       "Logging data to db: " +
@@ -35,7 +42,7 @@ function logTrialtoDB(data) {
   socket.emit("currentData", data);
 }
 
-function launchDominoesExperiment() {
+function launchExperiment() {
   var stimInfo = {
     proj_name: projName,
     exp_name: expName,
@@ -79,6 +86,7 @@ function buildAndRunExperiment(experimentConfig) {
     console.log("building experiment with config: ", experimentConfig);
   }
   var gameid = experimentConfig.gameid;
+  inputID = experimentConfig.inputid;
 
   //randomize button order on a subject basis
   var get_random_choices = () => {
@@ -95,6 +103,7 @@ function buildAndRunExperiment(experimentConfig) {
     (this.type = "video-overlay-button-response"), (this.dbname = projName);
     this.colname = expName;
     this.iterationName = iterName;
+    this.inputid = inputID;
     this.response_allowed_while_playing = false;
     // this.phase = 'experiment';
     this.condition = "prediction";
@@ -134,6 +143,7 @@ function buildAndRunExperiment(experimentConfig) {
   var main_on_finish = function (data) {
     // let's add gameID and relevant database fields
     data.gameID = gameid;
+    data.inputID = inputID;
     logTrialtoDB(data);
   };
 
