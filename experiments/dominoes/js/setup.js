@@ -8,6 +8,7 @@ var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular subm
 var projName = urlParams.get("projName");
 var expName = urlParams.get("expName");
 var iterName = urlParams.get("iterName");
+// var platform = urlParams.get("platform");
 
 /****************************************************
   If you have any other URL Parameters that you need 
@@ -15,6 +16,24 @@ var iterName = urlParams.get("iterName");
   ie;
   var dominoNumbers = urlParams.get("num_dominos")
 *****************************************************/
+
+function logTrialtoDB(data) {
+  data.dbname = projName;
+  data.colname = expName;
+  data.iterationName = iterName;
+  if (DEBUG_MODE) {
+    console.log(
+      "Logging data to db: " +
+        projName +
+        "\tcol: " +
+        expName +
+        "\titeration: " +
+        iterName
+    );
+    console.log("Data: " + data);
+  }
+  socket.emit("currentData", data);
+}
 
 function launchDominoesExperiment() {
   var stimInfo = {
@@ -115,23 +134,13 @@ function buildAndRunExperiment(experimentConfig) {
   var main_on_finish = function (data) {
     // let's add gameID and relevant database fields
     data.gameID = gameid;
-    data.dbname = projName;
-    data.colname = expName;
-    data.iterationName = iterName;
-
-    socket.emit("currentData", data);
-    if (DEBUG_MODE) {
-      console.log("emitting data", data);
-    }
+    logTrialtoDB(data);
   };
 
   // at end of each trial save data locally and send data to server
   var stim_on_finish = function (data) {
     /* You need to add these database fields to correctly log trials */
     data.gameID = gameid;
-    data.proj_name = projName;
-    data.exp_name = expName;
-    data.iter_name = iterName;
 
     data.stims_not_preloaded = /^((?!chrome|android).)*safari/i.test(
       navigator.userAgent
@@ -160,19 +169,7 @@ function buildAndRunExperiment(experimentConfig) {
     }
     last_correct = data.correct; //store the last correct for familiarization trials
     last_yes = data.response == "YES"; //store if the last reponse is yes
-    socket.emit("currentData", data);
-    if (DEBUG_MODE) {
-      console.log(
-        "emitting data",
-        data,
-        "proj_name",
-        projName,
-        "exp_name",
-        expName,
-        "iter_name",
-        iterName
-      );
-    }
+    logTrialtoDB(data);
   };
 
   var stim_log = function (data) {
