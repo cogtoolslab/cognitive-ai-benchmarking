@@ -49,19 +49,16 @@ port=myport #optional, default if unspecified is 27017
 - [node.js](https://nodejs.org/en/) 
 - [mongodb](https://www.mongodb.com/)
 
-### mongodb setup 
-
-
 # Implementing your experiment
 
-## preparing stimuli
+## Prepare your stimuli
 - Uploading your stimuli to S3. 
 - Assumes that you have already generated your stimuli elsewhere.
 
-## designing task user interface
-- write your jsPsych plugin
+## Design your task user interface
+Check out this [README](experiments/README.md).
 
-## configuring experiment according to research design
+## Configure your experiment according to research design
 - creating and uploading the experiment config (including projName, expName, iterationName)
 - splitting and batching trials into sessions
 - defining the criteria by which a session is valid.
