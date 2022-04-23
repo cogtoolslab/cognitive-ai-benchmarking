@@ -30,19 +30,19 @@ if (argv.gameport) {
 // we launch store.js ourselves
 // find free internal port
 portastic.find({
-  min: 8888,
-  max: 8999,
+  min: 4000,
+  max: 5000,
   retrieve: 1
 }).then(ports => {
   store_port = ports;
   if (argv.local_store) {
     console.log('using local store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [__dirname + '/store_local.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', ['store_local.js', '--port', store_port]);
   } else {
     console.log('using mongoDB store on port ' + store_port);
     // launch store.js
-    store_process = require('child_process').spawn('node', [__dirname + '/store.js', '--port', store_port]);
+    store_process = require('child_process').spawn('node', ['store.js', '--port', store_port]);
   }
 });
 
@@ -66,6 +66,7 @@ app.get('/*', (req, res) => {
 });
 
 io.on('connection', function (socket) {
+  console.log('\t :: Express :: client connected');
 
   // on request serve the stimulus data
   socket.on('getStims', function (data) {
@@ -100,14 +101,20 @@ var serveFile = function (req, res) {
 };
 
 function omit(obj, props) { //helper function to remove _id of stim object
-  props = props instanceof Array ? props : [props]
-  return eval(`(({${props.join(',')}, ...o}) => o)(obj)`)
+  // console.log(obj);
+  // console.log(props);
+  try{
+    props = props instanceof Array ? props : [props]
+    return eval(`(({${props.join(',')}, ...o}) => o)(obj)`)
+  } catch (err) {
+    return obj;
+  }
 }
 
 function initializeWithTrials(socket, proj_name, collection, it_name) {
   var gameid = UUID();
   // var colname = 'human-physics-benchmarking-dominoes-pilot_production_1'; //insert STIMULI DATASETNAME here
-  sendPostRequest('http://localhost:'+store_port+'/db/getstims', {
+  sendPostRequest('http://localhost:' + store_port + '/db/getstims', {
     json: {
       dbname: proj_name + '_stims',
       colname: collection,
@@ -148,7 +155,7 @@ var UUID = function () {
 var writeDataToMongo = function (data, proj_name, collection, it_name) {
   var db = proj_name + '_resp';
   sendPostRequest(
-    'http://localhost:'+store_port+'/db/insert',
+    'http://localhost:' + store_port + '/db/insert',
     {
       json: data,
       dbname: db,

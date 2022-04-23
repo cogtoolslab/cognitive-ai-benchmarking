@@ -3,18 +3,14 @@
 const _ = require('lodash');
 const bodyParser = require('body-parser');
 const express = require('express');
-const fs = require('fs');
 const mongodb = require('mongodb');
-const path = require('path');
-const sendPostRequest = require('request').post;
 const colors = require('colors/safe');
 
 const app = express();
 const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
-const mongoCreds = require('./dominoes/auth.json');
+const mongoCreds = require('./auth.json');
 const mongoURL = `mongodb://${mongoCreds.user}:${mongoCreds.password}@localhost:27017/`;
-const handlers = {};
 
 var argv = require('minimist')(process.argv.slice(2));
 
@@ -26,10 +22,6 @@ function makeMessage(text) {
 
 function log(text) {
   console.log(makeMessage(text));
-}
-
-function error(text) {
-  console.error(makeMessage(text));
 }
 
 function failure(response, text) {
@@ -71,7 +63,6 @@ function markAnnotation(collection, gameid, sketchid) {
 
 
 function serve() {
-
   mongoConnectWithRetry(2000, (connection) => {
 
     app.use(bodyParser.json());
@@ -103,7 +94,6 @@ function serve() {
       const collection = database.collection(collectionName);
 
       const data = _.omit(request.body, ['colname', 'dbname']);
-      // log(`inserting data: ${JSON.stringify(data)}`);
       collection.insert(data, (err, result) => {
         if (err) {
           return failure(response, `error inserting data: ${err}`);

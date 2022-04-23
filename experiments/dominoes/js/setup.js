@@ -1,13 +1,37 @@
-var DEBUG_MODE = false; //print debug and piloting information to the console
+var DEBUG_MODE = true; //print debug and piloting information to the console
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 var prolificID = urlParams.get("PROLIFIC_PID"); // ID unique to the participant
 var studyID = urlParams.get("STUDY_ID"); // ID unique to the study
 var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular submission
-var projName = urlParams.get("proj_name");
-var expName = urlParams.get("exp_name");
-var iterName = urlParams.get("iter_name");
-var stimInfo = { proj_name: projName, exp_name: expName, iterName: iterName };
+var projName = urlParams.get("projName");
+var expName = urlParams.get("expName");
+var iterName = urlParams.get("iterName");
+var stimInfo = { proj_name: projName, exp_name: expName, iter_name: iterName };
+
+if (DEBUG_MODE) {
+  console.log(
+    "Project Name: ",
+    projName,
+    "Experiment Name: ",
+    expName,
+    "iteration Name: ",
+    iterName,
+    "stimInfo",
+    stimInfo
+  );
+}
+
+function launchDominoesExperiment() {
+  socket.emit("getStims", stimInfo);
+
+  socket.on("stims", (experimentConfig) => {
+    if (DEBUG_MODE) {
+      console.log(experimentConfig);
+    }
+    buildAndRunExperiment(experimentConfig);
+  });
+}
 
 function buildAndRunExperiment(experimentConfig) {
   /*
@@ -17,7 +41,45 @@ function buildAndRunExperiment(experimentConfig) {
   The function receives stimuli / experiment configs from your database,
   and should build the appropriate jsPsych timeline. For each trial, make
   sure to specify an onFinish function that saves the trial response.
+    --> see `stim_on_finish` function for an example.
 */
+  if (DEBUG_MODE) {
+    console.log("building experiment with config: ", experimentConfig);
+  }
+  var gameid = experimentConfig.gameid;
+
+  //randomize button order on a subject basis
+  var get_random_choices = () => {
+    if (Math.random() > 0.5) {
+      return ["NO", "YES"];
+    } else {
+      return ["YES", "NO"];
+    }
+  };
+  var choices = get_random_choices(); //randomize button order
+
+  // Define trial object with boilerplate
+  function Experiment() {
+    (this.type = "video-overlay-button-response"), (this.dbname = projName);
+    this.colname = expName;
+    this.iterationName = iterName;
+    this.response_allowed_while_playing = false;
+    // this.phase = 'experiment';
+    this.condition = "prediction";
+    this.prompt = "Is the red object going to hit the yellow area?";
+    this.choices = choices;
+  }
+
+  function FamiliarizationExperiment() {
+    // extends Experiment to provide basis for familizarization trials
+    Experiment.call(this);
+    this.condition = "familiarization_prediction";
+  }
+
+  var last_correct = undefined; //was the last trial correct? Needed for feedback in familiarization
+  var correct = 0;
+  var total = 0;
+  var last_yes = undefined;
 
   // These are flags to control which trial types are included in the experiment
   const includeIntro = true;
@@ -29,9 +91,6 @@ function buildAndRunExperiment(experimentConfig) {
   var gameid = experimentConfig.gameid;
   var stims = experimentConfig.stims;
   var familiarization_stims = experimentConfig.familiarization_stims;
-  var dbname = experimentConfig.projName;
-  var colname = experimentConfig.colName;
-  var iterName = experimentConfig.iterName;
 
   if (DEBUG_MODE) {
     console.log("gameid", gameid);
@@ -42,7 +101,7 @@ function buildAndRunExperiment(experimentConfig) {
   // at end of each trial save data locally and send data to server
   var main_on_finish = function (data) {
     // let's add gameID and relevant database fields
-    data.gameID = gameID;
+    data.gameID = gameid;
     data.dbname = dbname;
     data.colname = colname;
     data.iterationName = iterName;
@@ -56,10 +115,10 @@ function buildAndRunExperiment(experimentConfig) {
   // at end of each trial save data locally and send data to server
   var stim_on_finish = function (data) {
     // let's add gameID and relevant database fields
-    data.gameID = gameID;
-    data.dbname = dbname;
-    data.colname = colname;
-    data.iterationName = iterName;
+    data.gameID = gameid;
+    data.proj_name = projName;
+    data.exp_name = expName;
+    data.iter_name = iterName;
     data.stims_not_preloaded = /^((?!chrome|android).)*safari/i.test(
       navigator.userAgent
     ); //HACK turned off preloading stimuli for Safari in jspsych-video-button-response.js
@@ -89,7 +148,16 @@ function buildAndRunExperiment(experimentConfig) {
     last_yes = data.response == "YES"; //store if the last reponse is yes
     socket.emit("currentData", data);
     if (DEBUG_MODE) {
-      console.log("emitting data", data);
+      console.log(
+        "emitting data",
+        data,
+        "proj_name",
+        projName,
+        "exp_name",
+        expName,
+        "iter_name",
+        iterName
+      );
     }
   };
 
@@ -448,8 +516,4 @@ function buildAndRunExperiment(experimentConfig) {
     default_iti: 1000,
     show_progress_bar: true,
   });
-}
-
-function launchExperiment() {
-  socket.emit("getStims", stimInfo, buildAndRunExperiment(experimentConfig));
 }
