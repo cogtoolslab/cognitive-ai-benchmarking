@@ -101,8 +101,6 @@ var serveFile = function (req, res) {
 };
 
 function omit(obj, props) { //helper function to remove _id of stim object
-  // console.log(obj);
-  // console.log(props);
   try{
     props = props instanceof Array ? props : [props]
     return eval(`(({${props.join(',')}, ...o}) => o)(obj)`)
