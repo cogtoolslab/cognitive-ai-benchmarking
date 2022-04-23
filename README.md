@@ -89,8 +89,8 @@ port=myport #optional, default if unspecified is 27017
 # Implementing your experiment
 
 ## Prepare your stimuli
-- Uploading your stimuli to S3. 
-- Assumes that you have already generated your stimuli elsewhere.
+This repo assumes that you have already generated your stimuli elsewhere. 
+Once you've done this, check out this [README](stimuli/README.md).
 
 ## Design your task user interface
 Check out this [README](experiments/README.md).
