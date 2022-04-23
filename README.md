@@ -125,7 +125,7 @@ This should be it! When you try out the experiment, your data will be saved on t
 - Once you launch the experiment, test it out and verify that your stimuli are being read in properly from mongodb.
 
 ## Validate data output
-- Next, you will want to verify that all trial metadata and response variables are being written out properly to mongodb. For example, a good first step is to adapt the following example notebook that constructs exploratory visualizations of response variables w.r.t. key axes of variation in your stimuli.
+- Next, you will want to verify that all trial metadata and response variables are being written out properly to mongodb. Here is an [example notebook](analysis/analyze_BACH_dominoes.ipynb) you can adapt that guides you through the standard steps involved in fetching & analyzing your data, including constructing exploratory visualizations of response variables w.r.t. key axes of variation in your stimuli.
 - TODO: In a future release of CAN, we will include a tool that enables you to monitor  which sessions are valid on an ongoing basis ("watchdog"), and automatically recruit more participants as needed to reach a target sample size.
 
 ## Post your experiment to a recruiting platform (e.g., Prolific)
