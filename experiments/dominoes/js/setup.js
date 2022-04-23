@@ -1,4 +1,5 @@
 var DEBUG_MODE = true; //print debug and piloting information to the console
+
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 var prolificID = urlParams.get("PROLIFIC_PID"); // ID unique to the participant
@@ -7,22 +8,34 @@ var sessionID = urlParams.get("SESSION_ID"); // ID unique to the particular subm
 var projName = urlParams.get("projName");
 var expName = urlParams.get("expName");
 var iterName = urlParams.get("iterName");
-var stimInfo = { proj_name: projName, exp_name: expName, iter_name: iterName };
 
-if (DEBUG_MODE) {
-  console.log(
-    "Project Name: ",
-    projName,
-    "Experiment Name: ",
-    expName,
-    "iteration Name: ",
-    iterName,
-    "stimInfo",
-    stimInfo
-  );
-}
+/****************************************************
+  If you have any other URL Parameters that you need 
+  for your experiment, read them in them here. 
+  ie;
+  var dominoNumbers = urlParams.get("num_dominos")
+*****************************************************/
 
 function launchDominoesExperiment() {
+  var stimInfo = {
+    proj_name: projName,
+    exp_name: expName,
+    iter_name: iterName,
+  };
+
+  if (DEBUG_MODE) {
+    console.log(
+      "Project Name: ",
+      projName,
+      "Experiment Name: ",
+      expName,
+      "iteration Name: ",
+      iterName,
+      "stimInfo",
+      stimInfo
+    );
+  }
+
   socket.emit("getStims", stimInfo);
 
   socket.on("stims", (experimentConfig) => {
