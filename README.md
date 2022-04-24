@@ -18,21 +18,22 @@ A CAB project will typically combine three elements: (1) stimulus generation; (2
 
 The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
-## Repo organizatoin
+## Repo organization
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
+**TODO: Update this**
 - `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
 - `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
 - `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
-- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.)
+- `stimuli`: This directory is meant to contain any download/preprocessing scripts for data that are _inputs_ to this project. For many projects, these will be images. This is also where you want to place any scripts that will upload your data to our `stimuli`  MongoDB database and any image data to Amazon S3 (so that it has a semi-permanent URL you can use to insert into your web experiment.) This is also where the scripts that determine the order the images or videos are presented in the experiment are located.
 
 ## Different ways to use this repo
 
 The examples in this repo have been organized in a modular fashion: you can either use  the entire stack or mix and match components of this stack with other tools if you prefer.
 
-- Level 1: Example client-side JavaScript code for prototyping tasks quickly
-- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database
-- Level 3: Example integration with an already running mongodb server
+- Level 1: Example client-side JavaScript code for prototyping tasks quickly. Check out this [README](OCP_local/README.md).
+- Level 2: Everything in Level 1, plus integration with node.js server for hosting your experiment and writing data to file without a database. See section entitled `Launch your experiment on a web server` below (see `app.js --local_storage`).
+- Level 3: Everything in Level 2, plus integration with an already running mongodb server (`app.js`).
 
 ## The central concepts in this repo
 
@@ -71,7 +72,7 @@ While running an experiment, this database will only be written into.
 
 # Installation
 
-## Configruation
+## Configuration
 
 To configure your environment for using CAB, you will need to create a config file called `.cabconfig`. 
 The purpose of this file is to define variables that apply to all of your CAB projects (e.g., username and password to access the mongo database).
@@ -108,7 +109,7 @@ Check out this [README](experiments/README.md).
 - splitting and batching trials into sessions
 - defining the criteria by which a session is valid.
 
-## launching your experiment on a web server
+## Launch your experiment on a web server (either with our without mongodb)
 
 If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
 
@@ -128,7 +129,14 @@ This should be it! When you try out the experiment, your data will be saved on t
 - TODO: In a future release of CAN, we will include a tool that enables you to monitor  which sessions are valid on an ongoing basis ("watchdog"), and automatically recruit more participants as needed to reach a target sample size.
 
 ## Post your experiment to a recruiting platform (e.g., Prolific)
-**TODO: Add information about how to post an experiment to Prolific.**
+- To post your experiment to Prolific, go to [https://www.prolific.co](https://www.prolific.co) and sign in using your lab/organization's account.
+- Click the `New study` tab to create a new study for your experiment. Here are the steps:
+  - give your study a name (title field in the first line), remember that this name is visible to your participants, so please make this title easy to understand (don't use technical terms) and attractive (in order to recruit participants more efficiently).
+  - the internal name (second line) should include some identifier of the experiment, e.g. BACH_dominoes_pilot1, please do not use very generic names like pilot1 because the messaging system only displays the internal name, so it’s hard to know who to poke about messages without diving into the study details.
+  - To include the URL of your study, you can figure it out with the URL parameters (eg. `https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1`) and choose `I'll use URL parameters` for `How do you want to record Prolific IDs`, which will add additional URL parameters that tell us which participant is doing the study. Please run `app.js` and make sure that your study is accessible from the web.
+  - Prolific will suggest a completion code—this can be added into `setup.js` to automatically accept participants who have finished it in Prolific. So please select "I'll redirect them using a URL".
+  - For study cost, please pay attention to the minimum wage in your state.
+  - Then simply open the Prolific study and watch the responses roll in!
 
 # Contributors ✨
 

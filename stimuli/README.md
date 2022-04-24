@@ -1,6 +1,6 @@
-Directory containing stimulus preprocessing code for this project.
 
-The process to prepare your stimuli for the experiment broadly follows 3 steps
+# Preparing your stimuli for your experiment
+The process to prepare your stimuli for the experiment follows 3 steps.
 
 1. Prepare your stimuli. These code examples assume you have a directory structure with stimlus files (this can be a single directory with all stimuli or a nested directory structure) and a metadata.json file containing the relevant metadata you'll need for each stimuli.
 
