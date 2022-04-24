@@ -21,6 +21,7 @@ The examples here are adapted from the [Physion project](https://github.com/cogt
 ## Repo organization
 It contains several subdirectories that will contain standard components of the human behavioral experimental infrastructure that will support a variety of Cognitive-AI Benchmarking projects.
 
+**TODO: Update this**
 - `analysis` (aka `notebooks`): This directory will typically contain jupyter/Rmd notebooks for exploratory code development and data analysis.
 - `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put your experimental code. If this is a project that will involve evaluation of a computational model's behavior on a task, this is also where you want to put the task code.
 - `results`: This directory is meant to contain "intermediate" results of your computational/behavioral experiments. It should minimally contain two subdirectories: `csv` and `plots`. So `/results/csv/` is the path to use when saving out `csv` files containing tidy dataframes. And `/results/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare AMT Worker ID's.* It is generally recommended that "raw" behavioral data be stored in a database rather than as part of this repo.
@@ -30,9 +31,9 @@ It contains several subdirectories that will contain standard components of the 
 
 The examples in this repo have been organized in a modular fashion: you can either use  the entire stack or mix and match components of this stack with other tools if you prefer.
 
-- Level 1: Example client-side JavaScript code for prototyping tasks quickly (see `experiments/OCP`)
-- Level 2: Example integration with node.js server for hosting your experiment and writing data to file without a database (see `app.js --local_storage`)
-- Level 3: Example integration with an already running mongodb server (`app.js`)
+- Level 1: Example client-side JavaScript code for prototyping tasks quickly. Check out this [README](OCP_local/README.md).
+- Level 2: Everything in Level 1, plus integration with node.js server for hosting your experiment and writing data to file without a database. See section entitled `Launch your experiment on a web server` below (see `app.js --local_storage`).
+- Level 3: Everything in Level 2, plus integration with an already running mongodb server (`app.js`).
 
 ## The central concepts in this repo
 
@@ -108,7 +109,7 @@ Check out this [README](experiments/README.md).
 - splitting and batching trials into sessions
 - defining the criteria by which a session is valid.
 
-## launching your experiment on a web server
+## Launch your experiment on a web server (either with our without mongodb)
 
 If you want to test your experiment on the server but don't want to worry about MongoDB, you can do the following:
 
