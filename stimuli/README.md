@@ -8,7 +8,7 @@ The process to prepare your stimuli for the experiment follows 3 steps.
 
 3. Configure your experiment. This step will 1.) create a dataframe of all the filenames, S3 links, and metadata for all the stimuli in your set, 2.) batch the full dataset into smaller chunks that will be presented to individual participants, 3.) save local JSON files with the filenames, s3 links, and metadata for each batch, and 4.) upload the same filenames/s3 links/metadata for each batch to MongoDB.
 
-Each step is broken down in more detail below. An ipynb notebook example for running the code is included. The example uses the Dominoes subset of the Physion dataset (which can be downloaded here https://physics-benchmarking-neurips2021-dataset.s3.amazonaws.com/Physion.zip).
+Each step is broken down in more detail below. An ipynb notebook example for running the code is included. The example uses the Dominoes subset of the Physion dataset (which can be downloaded here (https://physics-benchmarking-neurips2021-dataset.s3.amazonaws.com/Physion.zip).
 
 ## Step 1 - Create your stimulus set
 Step 1 above is assumed to be completed on your end before use of the code in this repo.
