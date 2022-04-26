@@ -12,69 +12,44 @@ import itertools
 import random
 import h5py
 sys.path.append('..')
-from utils import get_db_connection
+from cabutils import get_db_connection
 from upload_to_s3 import get_filepaths
 
 
-def build_s3_url(filenames, bucket):
+def load_metadata(meta_file):
     """
-    convert filenames to AWS S3 URLs
+    load trial metadata
     
     params:
-    bucket: string, AWS S3 bucket name
-    filenames: list of strings, AWS S3 filenames
-    """
-    s3_urls = []
-    for f in filenames:
-        s3_urls.append('https://{}.s3.amazonaws.com/{}'.format(bucket, f))
-    return s3_urls
-
-
-def make_stimulus_dataframe(bucket, data_root, data_path, multilevel):
-    """
-    make pandas dataframe of filenames and s3 urls
-    
-    params:
-    bucket: string, AWS S3 bucket name
-    data_root: string, root path for data to upload
-    data_path: string, path in data_root to be included in upload
-    multilevel: True for multilevel directory structures, False if all data is stored in one directore
-    
-    for a simple data directory with all to-be-uploaded files in one directory,  data_path is in the form /path/to/your/data
-    
-    for a multi-level directory structure, you will need to use glob ** notation in data_path to index all the relevant files. something like:
-    /path/to/your/files/**/* (this finds all the files in your directory structure)
-    /path/to/your/files/**/another_dir/* (this finds all the files contained in all sub-directories named another_dir)
-    /path/to/your/files/**/another_dir/*png (this finds all the pngs contained in all sub-directories named another_dir)
-    """
-    stim_IDs = get_filepaths(data_root, data_path, 
-                      multilevel=multilevel, aws_path_out=True)
-    stim_urls = build_s3_url(stim_IDs, bucket)
-    M = pd.DataFrame([stim_IDs, stim_urls]).transpose()
-    M.columns = ['stim_id', 'stim_URLs']
-    return M
-
-
-def merge_metadata_with_dataframe(M, meta_file):
-    """
-    load trial metadata and merge with main dataframe
-    
-    params:
-    M: main pandas dataframe
-    meta_file: string, path of metadata file for dataset
+    meta_file: string, path to metadata file for dataset
     """
     with open(meta_file, 'rb') as f:
         trial_metas = json.load(f)
-    M_meta = pd.DataFrame(trial_metas).transpose()
-    assert list(M_meta['stim_id']) == list(M['stim_id'])
-    for key in M_meta.keys():
-        if key == 'stim_id':
-            continue
-        M[key] = list(M_meta[key])
+    M = pd.DataFrame(trial_metas).transpose()
     return M
 
 
-def get_familiarization_files(M, fam_trial_ids):
+def build_s3_url(M, s3_stim_paths, bucket):
+    """
+    add AWS S3 filepaths to metadata dataframe
+    
+    params:
+    M_meta: pandas dataframe, metadata for experiment
+    s3_stim_paths: list of strings, paths to stimuli on S3 bucket
+    bucket: string, AWS S3 bucket name
+    filenames: list of strings, AWS S3 filenames
+    """
+    
+    base_pth = 'https://{}.s3.amazonaws.com/{}{}'
+    for path in s3_stim_paths:
+        stim_type = path.split('/')[0]
+        suffix = path.split('/')[1][3:]
+        M['{}_s3_path'.format(stim_type)] = [base_pth.format(bucket, x, suffix) 
+                                             for x in M['stimulus_name']]
+    return M
+
+
+def get_familiarization_stimuli(M, fam_trial_ids):
     """
     identify familiarization stimuli and make familiarization trial dataframe
     
@@ -82,12 +57,14 @@ def get_familiarization_files(M, fam_trial_ids):
     M: main pandas dataframe
     fam_trial_ids: list of strings, stim_id for familiarization stimuli
     """
-    M_fam = M[M['stim_id'].isin(fam_trial_ids)]
+    M_fam = M[M['stimulus_name'].isin(fam_trial_ids)]
     trials_fam = M_fam.transpose().to_dict()
     trials_fam = {str(key):value for key, value in trials_fam.items()}
-    assert len(M_fam) == len(M_fam['stim_id'].unique())
+    assert len(M_fam) == len(M_fam['stimulus_name'].unique())
     # drop familiarization trials from main dataframe
-    M = pd.merge(M, M_fam, how='outer', indicator=True).query("_merge != 'both'").drop('_merge', axis=1).reset_index(drop=True)
+    for f in M_fam['stimulus_name']:
+        ind = M.index[M['stimulus_name']==f]
+        M = M.drop(ind)
     trial_data = M.transpose().to_dict()
     trial_data = {str(key):value for key, value in trial_data.items()}
     return M, M_fam, trial_data, trials_fam
@@ -109,9 +86,8 @@ def split_stim_set_to_batches(bucket, batch_set_size, M, trial_data):
     # experiment specific-counterbalancing should go in the loop below
     ##################################################################
     trial_data_sets = []
-    for batch in range(n_batches):
-        M_set = M_sets[batch].sample(frac=1)
-        assert len(M_set) == len(M_set['stim_id'].unique())
+    for batch, M_set in enumerate(M_sets):
+        assert len(M_set) == len(M_set['stimulus_name'].unique())
         # save json for each batch
         M_set.transpose().to_json('%s_trial_data_%d.json' % (bucket, batch))
         cur_dict = M_set.transpose().to_dict()
@@ -147,49 +123,34 @@ def upload_to_mongo(trial_data_sets, trials_fam):
     
 
 
-def experiment_file_setup(bucket, data_root, data_path, meta_file, fam_trial_ids, batch_set_size, multilevel):
+def experiment_setup(meta_file, bucket, s3_stim_paths, fam_trial_ids, batch_set_size):
     """
     load all stimulus dataset data, batch for individual participants, save exp_data jsons locally, upload dataset to mongoDB
     
     params:
-    bucket: string, AWS S3 bucket name
     meta_file: string, name of metadata file for dataset
-    data_root: string, root path for data to upload
-    data_path: string, path in data_root to be included in upload
-    meta_file: string, path of metadata file for dataset
+    bucket: string, AWS S3 bucket name
+    s3_stim_paths: list of strings, paths to stimuli on S3 bucket
     fam_trial_ids: list of strings, stim_id for familiarization stimuli
     batch_set_size: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size
-    multilevel: True for multilevel directory structures, False if all data is stored in one directore
-    
-    for a simple data directory with all to-be-uploaded files in one directory,  data_path is in the form /path/to/your/data
-    
-    for a multi-level directory structure, you will need to use glob ** notation in data_path to index all the relevant files. something like:
-    /path/to/your/files/**/* (this finds all the files in your directory structure)
-    /path/to/your/files/**/another_dir/* (this finds all the files contained in all sub-directories named another_dir)
-    /path/to/your/files/**/another_dir/*png (this finds all the pngs contained in all sub-directories named another_dir)
     """
-    filepaths = get_filepaths(data_root,data_path,
-                               multilevel=multilevel, aws_path_out=True)
-    s3_urls = build_s3_url(filepaths, bucket)
-    M = make_stimulus_dataframe(bucket, data_root, data_path, multilevel=multilevel)
-    M = merge_metadata_with_dataframe(M, meta_file)
-    M, M_fam, trial_data, trials_fam = get_familiarization_files(M, fam_trial_ids)
+    
+    M = load_metadata(meta_file)
+    M = build_s3_url(M, s3_stim_paths, bucket)
+    M, M_fam, trial_data, fam_trials = get_familiarization_stimuli(M, fam_trial_ids)
     trial_data_sets = split_stim_set_to_batches(bucket, batch_set_size, M, trial_data)
     make_familiarization_json(bucket, M_fam)
-    upload_to_mongo(trial_data_sets, trials_fam)
+    upload_to_mongo(trial_data_sets, fam_trials)    
 
 
 def main():
-    bucket = 'dummy-stim'
-    data_root = '/mindhive/nklab4/users/tom/bach_hackathon/dummy_dataset/'
-    data_path = '*'
-    meta_file = '/mindhive/nklab4/users/tom/bach_hackathon/dummy_metadata.json'
-    fam_trial_ids = ['Image0001.png', 'Image0002.png']
-    batch_set_size = 6
-    multilevel = False
-
-    experiment_file_setup(bucket, data_root, data_path, meta_file, fam_trial_ids, batch_set_size, multilevel)
-    
+    bucket = 'cognitive-ai-benchmarking-physion-stim'
+    meta_file = './metadata.json'
+    s3_stim_paths = ['maps/*_map.png', 'mp4s/*_img.mp4']
+    fam_trial_ids = ['pilot_dominoes_0mid_d3chairs_o1plants_tdwroom_0013',
+                     'pilot_dominoes_1mid_J025R45_boxroom_0020']
+    batch_set_size = 37
+    experiment_setup(meta_file, bucket, s3_stim_paths, fam_trial_ids, batch_set_size)
 
 if __name__ == "__main__":
     main()

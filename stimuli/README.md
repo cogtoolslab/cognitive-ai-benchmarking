@@ -2,7 +2,7 @@
 # Preparing your stimuli for your experiment
 The process to prepare your stimuli for the experiment follows 3 steps.
 
-1. Prepare your stimuli. These code examples assume you have a directory structure with stimlus files (this can be a single directory with all stimuli or a nested directory structure) and a metadata.json file containing the relevant metadata you'll need for each stimuli.
+1. Prepare your stimuli. These code examples assume you have a directory structure with stimulus files (this can be a single directory with all stimuli or a nested directory structure) and a metadata.json file containing the relevant metadata you'll need for each stimuli.
 
 2. Upload your data to AWS S3 so you have a semi-permanent link to access the stimuli while your experiment is running.
 
@@ -46,15 +46,11 @@ Another relevant feature of Experiment Configuration is the inclusion of familia
 
 Step 3 is handled by `experiment_config.py`. To load the relevant metadata into a dataframe, batch it into individual session dataframes, save local JSONs for each batch, and upload the dataframes to MongoDB, call the function `experiment_file_setup`. This function takes 7 inputs:
 
-- `bucket`: string, name of AWS s3 bucket to write to (same as Step 2)
-    
-- `data_root`: string, root path for data to upload (same as Step 2)
-    
-- `data_path`: string, path in data_root to be included in upload. (same as Step 2)
-    
-- `multilevel`: True for multilevel directory structures, False if all data is stored in one directore (same as Step 2)
-    
 - `meta_file`: string, path to a JSON file that contains all the relevant metadata for each stimulus.
+
+- `bucket`: string, name of AWS s3 bucket to write to (same as Step 2)
+
+- `s3_stim_paths`: list of strings, paths to stimuli on S3 bucket
     
 - `fam_trial_ids`: fam_trial_ids: list of strings, stim_id for familiarization stimuli shown to participants before the experiment to familiarize them with the task
 
@@ -63,6 +59,3 @@ Step 3 is handled by `experiment_config.py`. To load the relevant metadata into 
 Example code to call `experiment_config.py` can be found in `experiment_config_example.ipynb` 
 
 Note that most experiments will require experiment-specific counterbalancing to ensure that each batch contains an equal number of trials from each condition. As this is very idiosyncratic to each experiment, our example does not counterbalance and assigns stimuli randomly to batches. The relevant section where counterbalancing batches should be applied is labeled in `experiment_config.py`.
-
-
-stimuli code and documentation contributed by Thomas O'Connell
