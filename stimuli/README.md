@@ -59,5 +59,3 @@ Step 3 is handled by `experiment_config.py`. To load the relevant metadata into 
 - `batch_set_size`: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size)
     
 Example code to call `experiment_config.py` can be found in `stimulus_setup_example.ipynb` 
-
-Note that most experiments will require experiment-specific counterbalancing to ensure that each batch contains an equal number of trials from each condition. As this is very idiosyncratic to each experiment, our example does not counterbalance and assigns stimuli randomly to batches. The relevant section where counterbalancing batches should be applied is labeled in `experiment_config.py`.
