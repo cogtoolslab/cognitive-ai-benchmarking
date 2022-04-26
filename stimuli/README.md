@@ -35,7 +35,7 @@ For a multi-level directory structure, you will need to use glob * and ** notati
     /path/to/your/files/**/another_dir/* (this finds all the files contained in all sub-directories named another_dir)
     /path/to/your/files/**/another_dir/*png (this finds all the pngs contained in all sub-directories named another_dir)
 
-Example code to call `upload_to_s3.py` can be found in `upload_to_s3_example.ipynb`
+Example code to call `upload_to_s3.py` can be found in `stimulus_setup_example.ipynb` 
 
 ## Step 3 - Experiment Configuration
 The purpose of this step is to compile all relevant metadata for all stimuli into a single omnibus dataframe, chunk the full stimulus set into smaller batches that are the appropriate size to be shown to a single participant within the allotted time for your experiment, save local copies of the batched dataframes, and upload the dataframes to MongoDB for use in the actual experiment interface.
@@ -58,6 +58,6 @@ Step 3 is handled by `experiment_config.py`. To load the relevant metadata into 
 
 - `batch_set_size`: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size)
     
-Example code to call `experiment_config.py` can be found in `experiment_config_example.ipynb` 
+Example code to call `experiment_config.py` can be found in `stimulus_setup_example.ipynb` 
 
 Note that most experiments will require experiment-specific counterbalancing to ensure that each batch contains an equal number of trials from each condition. As this is very idiosyncratic to each experiment, our example does not counterbalance and assigns stimuli randomly to batches. The relevant section where counterbalancing batches should be applied is labeled in `experiment_config.py`.
