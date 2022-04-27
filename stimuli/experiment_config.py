@@ -65,12 +65,10 @@ def get_familiarization_stimuli(M, fam_trial_ids):
     for f in M_fam['stimulus_name']:
         ind = M.index[M['stimulus_name']==f]
         M = M.drop(ind)
-    trial_data = M.transpose().to_dict()
-    trial_data = {str(key):value for key, value in trial_data.items()}
-    return M, M_fam, trial_data, trials_fam
+    return M, M_fam, trials_fam
 
 
-def split_stim_set_to_batches(bucket, batch_set_size, M, trial_data):
+def split_stim_set_to_batches(bucket, batch_set_size, M):
     """
     split full stimulus dataset into batches that will be shown to individual participants
     
@@ -91,7 +89,7 @@ def split_stim_set_to_batches(bucket, batch_set_size, M, trial_data):
         # save json for each batch
         M_set.transpose().to_json('%s_trial_data_%d.json' % (bucket, batch))
         cur_dict = M_set.transpose().to_dict()
-        trial_data_sets.append({str(key):value for key, value in trial_data.items()})
+        trial_data_sets.append({str(key):value for key, value in cur_dict.items()})
     return trial_data_sets
     
     
@@ -99,11 +97,10 @@ def make_familiarization_json(bucket, M):
     M.transpose().to_json('%s_familiarization_data.json' % bucket)
     
 
-def upload_to_mongo(trial_data_sets, trials_fam):
+def upload_to_mongo(dataset_name, trial_data_sets, trials_fam):
     """
     upload batched experiment files to mongoDB
     """
-    dataset_name = 'thomas_test'
     conn = get_db_connection()
     db = conn['experiment_files']
     coll = db[dataset_name]
@@ -137,10 +134,10 @@ def experiment_setup(meta_file, bucket, s3_stim_paths, fam_trial_ids, batch_set_
     
     M = load_metadata(meta_file)
     M = build_s3_url(M, s3_stim_paths, bucket)
-    M, M_fam, trial_data, fam_trials = get_familiarization_stimuli(M, fam_trial_ids)
-    trial_data_sets = split_stim_set_to_batches(bucket, batch_set_size, M, trial_data)
+    M, M_fam, fam_trials = get_familiarization_stimuli(M, fam_trial_ids)
+    trial_data_sets = split_stim_set_to_batches(bucket, batch_set_size, M)
     make_familiarization_json(bucket, M_fam)
-    upload_to_mongo(trial_data_sets, fam_trials)    
+    upload_to_mongo(bucket, trial_data_sets, fam_trials)    
 
 
 def main():
