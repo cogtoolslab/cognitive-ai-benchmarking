@@ -130,12 +130,12 @@ function buildAndRunExperiment(experimentConfig) {
 
   var gameid = experimentConfig.gameid;
   var stims = experimentConfig.stims;
-  var familiarization_stims = experimentConfig.familiarization_stims;
+  var familiarization_input = experimentConfig.familiarization_input;
 
   if (DEBUG_MODE) {
     console.log("gameid", gameid);
     console.log("stims", stims);
-    console.log("familiarization_stims", familiarization_stims);
+    console.log("familiarization_input", familiarization_input);
   }
 
   // at end of each trial save data locally and send data to server
@@ -208,7 +208,7 @@ function buildAndRunExperiment(experimentConfig) {
 
   // set up familiarization trials
   var familiarization_trials_pre = _.map(
-    familiarization_stims,
+    familiarization_input,
     function (n, i) {
       return _.extend({}, familiarizationExperimentInstance, n, {
         trialNum: i,
@@ -234,7 +234,7 @@ function buildAndRunExperiment(experimentConfig) {
   );
 
   var familiarization_trials_post = _.map(
-    familiarization_stims,
+    familiarization_input,
     function (n, i) {
       return _.extend({}, familiarizationExperimentInstance, n, {
         trialNum: i,

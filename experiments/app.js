@@ -132,7 +132,7 @@ function initializeWithTrials(socket, proj_name, collection, it_name) {
   // var colname = 'human-physics-benchmarking-dominoes-pilot_production_1'; //insert STIMULI DATASETNAME here
   sendPostRequest('http://localhost:' + store_port + '/db/getstims', {
     json: {
-      dbname: proj_name + '_stims',
+      dbname: proj_name + '_input',
       colname: collection,
       it_name: it_name,
       gameid: gameid
@@ -144,7 +144,7 @@ function initializeWithTrials(socket, proj_name, collection, it_name) {
         gameid: gameid,
         inputid: body['_id'], // using the mongo record ID
         stims: omit(body.stims, ['_id']),
-        familiarization_stims: omit(body.familiarization_stims, ['_id']),
+        familiarization_input: omit(body.familiarization_input, ['_id']),
         stim_version: body.stim_version, //TODO fix stim version
         // TODO add other properties here
 
@@ -170,7 +170,7 @@ var UUID = function () {
 };
 
 var writeDataToMongo = function (data, proj_name, collection, it_name) {
-  var db = proj_name + '_resp';
+  var db = proj_name + '_output';
   sendPostRequest(
     'http://localhost:' + store_port + '/db/insert',
     {

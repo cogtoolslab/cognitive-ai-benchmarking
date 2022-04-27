@@ -38,7 +38,7 @@ The examples in this repo have been organized in a modular fashion: you can eith
 ## The central concepts in this repo
 
 When working on a project, you will oftentimes run many different experiments that are related to each other. We propose a way of thinking about these related experiments that makes keeping track of them easy.
-
+x
 At the top of the hierarchy is the **project**—for example *Physion*. This corresponds to a repository.
 
 There are **datasets**—for example one particular scenario from the Physion dataset, eg. *dominoes*.
@@ -53,20 +53,20 @@ For each experiment, there are small changes that the researcher might make, for
 
 | Concept | Example | Correspondence | 
 | --- | --- | --- |
-| **project** | Physion | Repository, name of database (`[proj]_stims`,[proj]_resp`) |
+| **project** | Physion | Repository, name of database (`[proj]_input`,[proj]_output`) |
 | **dataset** | dominoes | *lives somewhere else* |
 | **task** | OCP | subfolders of `experiments/` |
-| **experiment** | dominoes_OCP | collection in `[proj]_stims` and `[proj]_resp` database |
+| **experiment** | dominoes_OCP | collection in `[proj]_input` and `[proj]_output` database |
 | **iteration** | iteration_1 | field of record in database |
 
 ## Database organization
 
 A mongoDB instance is ran by an organization (ie. your lab). 
-For each project, there are two databases: `[proj]_stims` and `[proj]_resp`. 
-In the `[proj]_stims` database (for stimuli, what is shown to the user), each collection determines a set of stimuli in a certain order that can be shown to a user ("sesion template"). 
+For each project, there are two databases: `[proj]_input` and `[proj]_output`. 
+In the `[proj]_input` database (for stimuli, what is shown to the user), each collection determines a set of stimuli in a certain order that can be shown to a user ("sesion template"). 
 While running an experiment, this database will only be read from.
 
-The data that is collected during an experiment goes into the `[proj]_resp` database (for responses, which we get from the user).
+The data that is collected during an experiment goes into the `[proj]_output` database (for responses, which we get from the user).
 There, each document corresponds to a single event that we care about, such as the user giving a single rating to a single video. Each document contains field that allow us to group it into experiments and iterations, etc.
 While running an experiment, this database will only be written into.
 
@@ -119,7 +119,7 @@ Then run the `generate_metadata.ipynb` jupyter notebook to generate your stimuli
 
 Next, run `node app.js --gameport PORT --local_store`. This needs to be ran from the experiments folder (ie. do `cd experiments` before running this).
 
-This should be it! When you try out the experiment, your data will be saved on the server (as opposed to MongoDB) in the direcotry: `results/databaseName_resp/collectionName.csv` (e.g. `results/BACH_resp/dominoes.csv`) that you can check and help you debug.
+This should be it! When you try out the experiment, your data will be saved on the server (as opposed to MongoDB) in the direcotry: `results/databaseName_output/collectionName.csv` (e.g. `results/BACH_output/dominoes.csv`) that you can check and help you debug.
 
 ## Validate data input
 - Once you launch the experiment, test it out and verify that your stimuli are being read in properly from mongodb.
