@@ -9,18 +9,20 @@ Project Template for Implementing Human Behavioral Experiments
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 1. [Overview](#overview)
-2. [Installation](#installation)
-3. [Implementing your experiment](#implementing-your-experiment)
-4. [Contributors](#contributors)
+2. [Implementing your experiment](#implementing-your-experiment)
+3. [Installation](#installation)
+4. [Database organization](#database-organization)
+5. [Integration with experiment platforms](#integration-with-experiment-platforms)
+6. [Contributors](#contributors-✨)
 
 ---
 
 # Overview
 
-The purpose of this repo is to provide a starting point for researchers planning to conduct a Cognitive-AI Benchmarking (CAB) project.
+The purpose of this repo is to provide a starting point for researchers planning to conduct a **Cognitive-AI Benchmarking (CAB)** project.
 A CAB project will typically combine three elements: (1) stimulus generation; (2) human behavioral experiments; (3) analysis of behavioral data and comparison to model outputs.
 
-The examples here are adapted from the [Physion project](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
+This repository provides example code to setup and run the Object Contact Prediction (OCP) task on the dominoes scenario of the [Physion dataset](https://github.com/cogtoolslab/physics-benchmarking-neurips2021).
 
 <!-- ## Repo organization
 
@@ -73,13 +75,15 @@ Preparing and running an iteration of your experiment is involves the following 
 
 This repo assumes that you have already generated the images or videos that are being shown to the participants elsewhere.
 Use [stimuli/upload_to_s3.py](stimuli/upload_to_s3.py) to upload your stimuli to S3.
-Once you've done this, check out this [README](stimuli/README.md).
+<!-- Once you've done this, check out this [README](stimuli/README.md). -->
 
 ## 2. Design your task user interface—[`experiments/`](experiments/)
 
 [`experiments/`](experiments/) contains the front end code for your experiment. A folder corresponds to a particular task (ie. [Object Contact Prediction Task](experiments/OCP/)).
 Adapt the front end code in ['setup.js](experiments/OCP/js/setup.js) as well as the [jsPsych plugins](experiments/OCP/js/plugins/jspsych-video-overlay-button-response.js) to your particular task.
 Check out this [README](experiments/README.md).
+
+If you want to see demo of the front end code, launch [experiments/OCP_local/index.html](experiments/OCP_local/index.html) using a web browser from your local machine. 
 
 ## 3. Create session templates—[`stimuli/`](stimuli/)
 
