@@ -74,7 +74,7 @@ Preparing and running an iteration of your experiment is involves the following 
 ## 1. Prepare the videos or images—[`stimuli/`](stimuli/)
 
 This repo assumes that you have already generated the images or videos that are being shown to the participants elsewhere.
-Use [stimuli/upload_to_s3.py](stimuli/upload_to_s3.py) to upload your stimuli to S3.
+Use [stimuli/upload_to_s3.py](stimuli/upload_to_s3.py) to upload your stimuli to S3 (for an usage example, see [stimuli/stimulus_setup_example.ipynb](stimuli/stimulus_setup_example.ipynb)).
 <!-- Once you've done this, check out this [README](stimuli/README.md). -->
 
 ## 2. Design your task user interface—[`experiments/`](experiments/)
@@ -87,7 +87,7 @@ If you want to see demo of the front end code, launch [experiments/OCP_local/ind
 
 ## 3. Create session templates—[`stimuli/`](stimuli/)
 
-Session templates are entries in the database that determine the precise order in which a participant will be shown the stimuli. These are created using [stimuli/create_session_templates.ipynb](stimuli/create_session_templates.ipynb), which also points to code to upload them to the MongoDB database that the experiment is served from.
+Session templates are entries in the database that determine the precise order in which a participant will be shown the stimuli. These are created using [stimuli/stimuli/stimulus_setup_example.ipynb](stimuli/stimuli/stimulus_setup_example.ipynb), which also points to code to upload them to the MongoDB database that the experiment is served from.
 
 <!-- - creating and uploading the experiment config (including projName, expName, iterationName)
 - splitting and batching trials into sessions
