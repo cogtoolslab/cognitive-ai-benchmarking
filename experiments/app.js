@@ -144,7 +144,7 @@ function initializeWithTrials(socket, proj_name, collection, it_name) {
         gameid: gameid,
         inputid: body['_id'], // using the mongo record ID
         stims: omit(body.stims, ['_id']),
-        familiarization_input: omit(body.familiarization_input, ['_id']),
+        familiarization_stims: omit(body.familiarization_stims, ['_id']),
         stim_version: body.stim_version, //TODO fix stim version
         // TODO add other properties here
 
