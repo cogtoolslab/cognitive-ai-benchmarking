@@ -65,7 +65,7 @@ function launchExperiment() {
 
   socket.on("stims", (experimentConfig) => {
     if (DEBUG_MODE) {
-      console.log(experimentConfig);
+      console.log("Received from database:",experimentConfig);
     }
     buildAndRunExperiment(experimentConfig);
   });
@@ -130,12 +130,12 @@ function buildAndRunExperiment(experimentConfig) {
 
   var gameid = experimentConfig.gameid;
   var stims = experimentConfig.stims;
-  var familiarization_input = experimentConfig.familiarization_input;
+  var familiarization_stims = experimentConfig.familiarization_stims;
 
   if (DEBUG_MODE) {
     console.log("gameid", gameid);
     console.log("stims", stims);
-    console.log("familiarization_input", familiarization_input);
+    console.log("familiarization_stims", familiarization_stims);
   }
 
   // at end of each trial save data locally and send data to server
@@ -208,12 +208,12 @@ function buildAndRunExperiment(experimentConfig) {
 
   // set up familiarization trials
   var familiarization_trials_pre = _.map(
-    familiarization_input,
+    familiarization_stims,
     function (n, i) {
       return _.extend({}, familiarizationExperimentInstance, n, {
         trialNum: i,
-        stimulus: [n.stim_url],
-        overlay: [n.map_url],
+        stimulus: [n.mp4s_url],
+        overlay: [n.maps_url],
         overlay_time: 2,
         blink_time: 500,
         stop: 1.5, //STIM DURATION stop the video after X seconds
@@ -226,19 +226,19 @@ function buildAndRunExperiment(experimentConfig) {
         studyID: studyID,
         sessionID: sessionID,
         gameID: gameid,
-        target_hit_zone_label: n.target_hit_zone_label,
-        stim_ID: n.stim_ID,
+        target_hit_zone_label: n.does_target_contact_zone,
+        stim_ID: n.stimulus_name,
         // save_trial_parameters: {} //selectively save parameters
       });
     }
   );
 
   var familiarization_trials_post = _.map(
-    familiarization_input,
+    familiarization_stims,
     function (n, i) {
       return _.extend({}, familiarizationExperimentInstance, n, {
         trialNum: i,
-        stimulus: [n.stim_url], //rename stim_url for the video plugin
+        stimulus: [n.mp4s_url], //rename stim_url for the video plugin
         // stop: 1.5, //STIM DURATION stop the video after X seconds
         response_allowed_while_playing: false,
         width: 500,
@@ -249,8 +249,8 @@ function buildAndRunExperiment(experimentConfig) {
         studyID: studyID,
         sessionID: sessionID,
         gameID: gameid,
-        target_hit_zone_label: n.target_hit_zone_label,
-        stim_ID: n.stim_ID,
+        target_hit_zone_label: n.does_target_contact_zone,
+        stim_ID: n.stimulus_name,
         choices: ["Next"],
         prompt: () => {
           if (last_correct & last_yes) {
@@ -289,8 +289,8 @@ function buildAndRunExperiment(experimentConfig) {
   var trials = _.map(stims, function (n, i) {
     return _.extend({}, experimentInstance, n, {
       trialNum: i,
-      stimulus: [n.stim_url],
-      overlay: [n.map_url],
+      stimulus: [n.mp4s_url],
+      overlay: [n.maps_url],
       overlay_time: 2,
       blink_time: 500,
       stimulus_metadata: n, //to dump all the metadata back to mongodb
@@ -304,8 +304,8 @@ function buildAndRunExperiment(experimentConfig) {
       studyID: studyID,
       sessionID: sessionID,
       gameID: gameid,
-      target_hit_zone_label: n.target_hit_zone_label,
-      stim_ID: n.stim_ID,
+      target_hit_zone_label: n.does_target_contact_zone,
+      stim_ID: n.stimulus_name,
       // save_trial_parameters: {} //selectively save parameters
     });
   });
