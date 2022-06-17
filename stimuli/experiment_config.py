@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 import h5py
 import random
 import itertools
@@ -12,8 +14,6 @@ import numpy as np
 from cabutils import get_db_connection  # needs to be after sys.append
 from upload_to_s3 import get_filepaths
 import os
-import sys
-sys.path.append('..')
 
 
 def load_metadata(meta_file, iteration):
