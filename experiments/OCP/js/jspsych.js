@@ -2516,6 +2516,7 @@ jsPsych.pluginAPI = (function() {
             preload_video(source, count + 1)
           }, 200);
         } else {
+          console.log("Couldn't preload video ", source);
           jsPsych.loadFail();
         }
       }
