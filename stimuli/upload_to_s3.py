@@ -156,6 +156,7 @@ def upload_stim_to_s3(bucket,
     for fp in tqdm(filepaths):
         if "." in fp:
             s3_path = fp.split(data_root)[1]
+            if s3_path[0] == '/': s3_path = s3_path[1::]
             upload(client, bucket, s3_path, fp, overwrite=overwrite)
             # print("Uploaded " + fp + " to s3 path: " + s3_path)
     print("Done")
