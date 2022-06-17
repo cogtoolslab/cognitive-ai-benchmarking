@@ -8,7 +8,7 @@ The process to prepare your stimuli for the experiment follows 3 steps.
 
 3. Configure your experiment. This step will 1.) create a dataframe of all the filenames, S3 links, and metadata for all the stimuli in your set, 2.) batch the full dataset into smaller chunks that will be presented to individual participants, 3.) save local JSON files with the filenames, s3 links, and metadata for each batch, and 4.) upload the same filenames/s3 links/metadata for each batch to MongoDB.
 
-Each step is broken down in more detail below. An ipynb notebook example for running the code is included. The example uses the Dominoes subset of the Physion dataset (which can be downloaded here (https://physics-benchmarking-neurips2021-dataset.s3.amazonaws.com/Physion.zip).
+Each step is broken down in more detail below. An ipynb notebook example for running the code is included. The example uses the Dominoes subset of the Physion dataset (which can be downloaded here (https://physics-benchmarking-neurips2021-dataset.s3.amazonaws.com/Physion_Dominoes.zip).
 
 ## Step 1 - Create your stimulus set
 Step 1 above is assumed to be completed on your end before use of the code in this repo.
@@ -19,13 +19,15 @@ The purpose of this step is to host your stimuli on AWS S3 so you have a semi-pe
 Step 2 is handled by the function `upload_stim_to_s3` in `upload_to_s3.py`. This function takes 5 inputs:
 - `bucket`: string, name of AWS s3 bucket to write to
 
-- `pth_to_s3_credentials`: string, path to AWS credentials file
+- `pth_to_s3_credentials`: string, path to AWS credentials file. Alternatively, you can pass `None` to use a shared credentials file (usually in `~/.aws/credentials`) or environment variables.
 
 - `data_root`: string, root path for data to upload
 
 - `data_path`: string, path in data_root to be included in upload.
 
 - `multilevel`: True for multilevel directory structures, False if all data is stored in one directory
+
+- `overwrite`: Set to true if files have changed and the files in S3 need to be overwritten.
 
 For a simple data directory with all to-be-uploaded files stored in data_root without any sub-directories, data_path should simply be *
     
@@ -56,6 +58,10 @@ Step 3 is handled by `experiment_config.py`. To load the relevant metadata into 
     
 - `fam_trial_ids`: fam_trial_ids: list of strings, stim_id for familiarization stimuli shown to participants before the experiment to familiarize them with the task
 
-- `batch_set_size`: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size)
+- `batch_set_size`: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size (not including familiarization files in the count for the overall stimulus set size). Set to the number of stimuli in the experiment if you want to use the full set of stimuli for every participant.
+
+- `overwrite`: Should the collection (usually corresponing to the name of the experiment) be overwritten if it already exists? Set to True if you want to clear the collection of all entries. Note that this will delete **all** entries in the collection, including those with of an earlier iteration.
+
+- `n_entries`: How many different shuffled/sampled version of the stimuli should we include? It is recommended to include more shuffled entries than the expected number of participants.
     
 Example code to call `experiment_config.py` can be found in `stimulus_setup_example.ipynb` 
