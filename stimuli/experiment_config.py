@@ -1,4 +1,6 @@
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('..')
 import h5py
 import random
@@ -41,11 +43,11 @@ def build_s3_url(M, s3_stim_paths, bucket):
     filenames: list of strings, AWS S3 filenames
     """
 
-    base_pth = 'https://{}.s3.amazonaws.com/{}{}'
+    base_pth = 'https://{}.s3.amazonaws.com/{}/{}{}'
     for path in s3_stim_paths:
         stim_type = path.split('/')[0]
-        suffix = path.split('/')[1][3:]
-        M['{}_s3_path'.format(stim_type)] = [base_pth.format(bucket, x, suffix)
+        suffix = path.split('*')[1]
+        M['{}_url'.format(stim_type)] = [base_pth.format(bucket, stim_type, x, suffix)
                                              for x in M['stimulus_name']]
     return M
 
@@ -121,12 +123,15 @@ def upload_to_mongo(project, experiment, iteration, trial_data_sets, trials_fam,
     sorted(db.list_collection_names())
     # drop collection if necessary.
     if drop_old:
-        db.drop_collection(experiment)
-        print("Dropped old collection {}".format(experiment))
+        # db.drop_collection(experiment)
+        # print("Dropped old collection {}".format(experiment))
+        # delete only entries that match current iteration
+        coll.delete_many({'iteration': iteration})
+        print("Deleted old entries of iteration {} from collection {}".format(iteration, experiment))
     # upload to mongo
     for batch in range(len(trial_data_sets)):
-        coll.insert_one({'stim': trial_data_sets[batch],
-                        'familiarization_trials': trials_fam,
+        coll.insert_one({'stims': trial_data_sets[batch],
+                        'familiarization_stims': trials_fam,
                          'iteration': iteration, })
     print('Done inserting records into database {}, collection {}. `.json` files have been saved to `stimuli/` folder.'.format(project, experiment))
     coll.estimated_document_count()
@@ -156,3 +161,34 @@ def experiment_setup(project, experiment, iteration, meta_file_path, bucket, s3_
     make_familiarization_json(M_fam, project, experiment, iteration)
     upload_to_mongo(project, experiment, iteration,
                     trial_data_sets, fam_trials, overwrite)
+
+# Debugging code
+# if __name__ == '__main__':
+#     PROJECT = "Cognitive_AI_Benchmarking"
+#     DATASET = "Physion"
+#     TASK = "OCP"
+#     ITERATION = "1"
+#     EXPERIMENT = DATASET + "_" + TASK
+
+#     bucket = (PROJECT + "_" + DATASET).replace("_","-").lower() # bucket name on AWS S3 where stimuli where be stored. `_` is not allowed in bucket names
+#     pth_to_s3_credentials = None # local path to your aws credentials in JSON format. Pass None to use shared credentials file
+#     data_root = 'stimuli/Physion_Dominoes' 
+#     data_path = '**/*' # this finds all subdirectories in data_root and loads all files in each subdirectory to s3
+#     multilevel=True # Dominoes/ contains 2 subdirectories, so the structure is multi-level
+#     stim_paths = ['maps/*_map.png', 'mp4s/*_img.mp4'] # list of paths to stimuli to upload to s3—include a pattern to match only for relevant files
+#     meta_file = data_root + '/metadata.json' # path to metadata for stimulus set
+#     fam_trial_ids = ['pilot_dominoes_0mid_d3chairs_o1plants_tdwroom_0013', 
+#                     'pilot_dominoes_1mid_J025R45_boxroom_0020'] # image ids for familiarization trials
+#     batch_set_size = 20
+#     n_entries = 10 # how many different random orders do we want?
+
+#     experiment_setup(PROJECT,
+#                  EXPERIMENT,
+#                  ITERATION,
+#                  meta_file,
+#                  bucket,
+#                  stim_paths,
+#                  fam_trial_ids,
+#                  batch_set_size,
+#                  overwrite=True,
+#                  n_entries = n_entries)
