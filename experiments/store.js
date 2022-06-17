@@ -14,7 +14,11 @@ const ObjectID = mongodb.ObjectID;
 const MongoClient = mongodb.MongoClient;
 
 const settings_file = '../settings.conf';
-config.read(settings_file);
+try{
+  config.read(settings_file);
+} catch {
+  console.log("Failed to read config file. Make sure settings.conf exists and that you started app.js with the experiments folder as working directory.")
+}
 const DEFAULT_CONFIG_FILENAME = config.get('DEFAULTS', 'CONFIG_FILENAME');
 const DEFAULT_MONGODB_PORT = config.get('DEFAULTS', 'MONGODB_PORT');
 const DEFAULT_MONGODB_HOST = config.get('DEFAULTS', 'MONGODB_HOST');
@@ -142,11 +146,12 @@ function serve() {
       if (!request.body) {
         return failure(response, '/db/getstims needs post request body');
       }
-      console.log(`got request to get stims from ${request.body.dbname}/${request.body.colname}`);
+      console.log('request:',request.body);
+      console.log(`got request to get stims from ${request.body.dbname}/${request.body.colname}/${request.body.it_name}`);
 
       const databaseName = request.body.dbname;
       const collectionName = request.body.colname;
-      const iterName = request.body.iterName;
+      const iterName = request.body.it_name;
       if (!collectionName) {
         return failure(response, '/db/getstims needs collection');
       }
@@ -159,12 +164,12 @@ function serve() {
 
       // sort by number of times previously served up and take the first
       collection.aggregate([
-        { $match: { iterName: iterName } }, // only serve the iteration we want
+        { $match: { iteration: iterName } }, // only serve the iteration we want
         { $sort: { numGames: 1 } },
         { $limit: 1 }
       ]).toArray((err, results) => {
         if (err) {
-          console.log(err);
+          console.log("Error while aggregating for iternamer", iterName, " error: ", err);
         } else {
           // Immediately mark as annotated so others won't get it too
           try {

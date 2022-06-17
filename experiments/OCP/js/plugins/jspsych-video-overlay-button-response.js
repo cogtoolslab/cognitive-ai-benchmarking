@@ -14,8 +14,8 @@
 
   var plugin = {};
 
-  jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');
   jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'overlay', 'image');
+  // jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');  // for some reason the preloading of videos is currently broken
 
   plugin.info = {
     name: 'video-overlay-button-response',
@@ -186,7 +186,7 @@
     if(!video_preload_blob) {
       for(var i=0; i<trial.stimulus.length; i++){
         var file_name = trial.stimulus[i];
-        if (DEBUG_MODE){console.log("Loading stim"+file_name);}
+        if (DEBUG_MODE){console.log("Loading stim "+file_name);}
         if(file_name.indexOf('?') > -1){
           file_name = file_name.substring(0, file_name.indexOf('?'));
         }
