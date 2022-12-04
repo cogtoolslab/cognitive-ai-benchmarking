@@ -1,4 +1,4 @@
-`OCP` is an example version of the frontend code for the Object Contact Predition Task. It will need a webserver (`app.js`) to serve it (but it can be used to collect data).
+`OCP` is an example version of the frontend code for the Object Contact Predition Task. It will need a webserver (`app.js`) to serve it (but it can be used to collect data). This task was used in [Physion: Evaluating Physical Prediction from Vision in Humans and Machines (NeurIPS, 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/d09bf41544a3365a46c9077ebb5e35c3-Abstract-round1.html).
 
 Here, instead of a database, a local `.json` in `stimuli/` is used to read session templates and the results are saved into a `.csv` in `results/`.
 
@@ -26,11 +26,11 @@ Troubleshooting:
 - Data must be in the `input` database, otherwise a blank page is shown. Use the stdio output of app.js and the browser JavaScript console to troubleshoot.
 
 ### Checklist for starting data collection on new online experiment
--[ ] Complete your OSF pre-registration worksheet
--[ ] Make sure that data is being saved correctly by drafting your analysis notebook
--[ ] Write instructions
--[ ] Figure out how subject payment is going to work
--[ ] Add consent form to appear before instructions
+- [ ] Complete your OSF pre-registration worksheet
+- [ ] Make sure that data is being saved correctly by drafting your analysis notebook
+- [ ] Write instructions
+- [ ] Figure out how subject payment is going to work
+- [ ] Add consent form to appear before instructions
 
 <!-- #### Using Amazon Mechanical Turk?
 - Configure HIT settings using nosub: https://github.com/longouyang/nosub
