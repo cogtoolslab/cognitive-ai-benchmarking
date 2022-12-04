@@ -18,6 +18,13 @@ For the example here, we are using the following values:
 
 Here, we would use [https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1](https://cogtoolslab.org:8881/dominoes/index.html?projName=BACH&expName=dominoes_OCP&iterName=it1).
 
+Troubleshooting:
+
+- the study is set up to require a secure connection, so `https://` needs to be used.
+- app.js runs from a particular port that may be separate from the default HTML port, so the port needs to be specified (eg. `:8881`).
+- `/index.html` needs to be opened by the browser, otherwise a blank page will be returned.
+- Data must be in the `input` database, otherwise a blank page is shown. Use the stdio output of app.js and the browser JavaScript console to troubleshoot.
+
 ### Checklist for starting data collection on new online experiment
 -[ ] Complete your OSF pre-registration worksheet
 -[ ] Make sure that data is being saved correctly by drafting your analysis notebook
