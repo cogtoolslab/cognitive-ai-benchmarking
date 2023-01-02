@@ -186,7 +186,7 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
 
     M = load_metadata(hdf5_paths, iteration)
     print("Loaded metadata for {} stimuli".format(len(M)))
-    M = build_s3_url(M, s3_stim_paths, bucket)
+def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True, exclude_fam_stem=False):
     print("Loaded S3 URLs for {} stimuli".format(len(M)))
     M, M_fam, fam_trials = get_familiarization_stimuli(
         M, fam_trial_ids, iteration)
@@ -200,3 +200,4 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
                     trial_data_sets, fam_trials, overwrite)
     print("Uploaded stimuli to mongoDB")
 
+        batch_set_size, M, project, experiment, iteration, n_entries, fam_trial_ids, exclude_fam_stem)
