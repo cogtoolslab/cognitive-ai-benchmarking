@@ -1,30 +1,44 @@
+from parse_hdf5 import get_label, get_metadata_from_h5
+from tqdm import tqdm
+from upload_to_s3 import get_filepaths
+import numpy as np
+import pandas as pd
+import json
+import pymongo as pm
+from glob import glob
+from IPython.display import clear_output
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('..')
-import h5py
-import random
-import itertools
-import ast
-from IPython.display import clear_output
-from glob import glob
-import pymongo as pm
-import json
-import pandas as pd
-from PIL import Image
-import numpy as np
+
 from cabutils import get_db_connection  # needs to be after sys.append
-from upload_to_s3 import get_filepaths
-import os
 
 
-def load_metadata(meta_file, iteration):
+def load_metadata(paths, iteration, json_path=None):
     """
     load trial metadata
 
     params:
-    meta_file: string, path to metadata file for dataset
+    path: string
+    use_json: bool, if True, load metadata from json file
     """
+    print('Loading metadata...')
+    if json_path:
+        return load_metadata_json(json_path, iteration)
+    else:
+        print('Parsing labels...')
+        labels = [get_label(path) for path in tqdm(paths)]
+        print('Reading `static`...')
+        metadatas = [get_metadata_from_h5(path) for path in tqdm(paths)]
+        # create dataframe
+        M = pd.DataFrame(metadatas)
+        M['target_contacting_zone'] = labels
+        print("Got data for {} stimuli".format(len(M)))
+        return M
+
+
+def load_metadata_json(meta_file, iteration):
     with open(meta_file, 'rb') as f:
         trial_metas = json.load(f)
     M = pd.DataFrame(trial_metas).transpose()
@@ -43,12 +57,19 @@ def build_s3_url(M, s3_stim_paths, bucket):
     filenames: list of strings, AWS S3 filenames
     """
 
+    STIM_TYPES = {'*_img.mp4': 'mp4s_url',
+                  '*_map.png': 'maps_url'
+                  }
+
     base_pth = 'https://{}.s3.amazonaws.com/{}/{}{}'
     for path in s3_stim_paths:
-        stim_type = path.split('/')[0]
+        try: # what sort of path is this? 
+            stim_type = STIM_TYPES[path]
+        except: # not one obsviously corresponding to the two hard coded types
+            stim_type = path.split('/')[0]
         suffix = path.split('*')[1]
         M['{}_url'.format(stim_type)] = [base_pth.format(bucket, stim_type, x, suffix)
-                                             for x in M['stimulus_name']]
+                                         for x in M['stimulus_name']]
     return M
 
 
@@ -79,15 +100,14 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     bucket: string, AWS S3 bucket name
     batch_set_size: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size
     """
-    # n_entries = int(len(M) / batch_set_size)
-    # M_sets = np.array_split(M.sample(frac=1), n_entries)
     ##################################################################
     # most experiments require experiment-specific counterbalancing
     # for this example we assign stimuli randomly to batches
     # experiment specific-counterbalancing should go in the loop below
     ##################################################################
     trial_data_sets = []
-    for batch in range(n_entries):
+    print("Splitting stimulus set into batches...")
+    for batch in tqdm(range(n_entries)):
         # randomly sample the stimulus set
         assert batch_set_size <= len(
             M), "batch_set_size is larger than the number of stimuli in the dataset"
@@ -100,8 +120,16 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
         trial_data_sets.append(
             {str(key): value for key, value in cur_dict.items()})
         # save trial_data_sets to disk
+        # fails if a ndarray is somewhere in the structure
         with open('{}_{}_trial_data_{}.json'.format(project, experiment, iteration), 'w') as f:
             json.dump(trial_data_sets[batch], f)
+    print("Saving—might take a second...")
+    # save to disk as dataframe
+    csv_name = '{}_{}_trial_data_{}.csv'.format(project, experiment, iteration)
+    pd.DataFrame(trial_data_sets).to_csv(
+        csv_name)
+    print("Saved {} batches of {} stimuli to disk at {}".format(
+        n_entries, batch_set_size, csv_name))
     return trial_data_sets
 
 
@@ -116,20 +144,24 @@ def upload_to_mongo(project, experiment, iteration, trial_data_sets, trials_fam,
     # we require that the database ends in input per convention
     if not "_input" in project:
         project = project + "_input"
+    print("Uploading to mongoDB with project {}, experiment {}, iteration {}...".format(
+        project, experiment, iteration))
     conn = get_db_connection()
     db = conn[project]
     coll = db[experiment]
     # get list of current collections
-    sorted(db.list_collection_names())
+    print("We have the following collections:",
+          sorted(db.list_collection_names()))
     # drop collection if necessary.
     if drop_old:
-        # db.drop_collection(experiment)
-        # print("Dropped old collection {}".format(experiment))
         # delete only entries that match current iteration
         coll.delete_many({'iteration': iteration})
-        print("Deleted old entries of iteration {} from collection {}".format(iteration, experiment))
+        print("Deleted old entries of iteration {} from collection {}".format(
+            iteration, experiment))
     # upload to mongo
-    for batch in range(len(trial_data_sets)):
+    print("Uploading {} batches of {} stimuli to mongoDB...".format(
+        len(trial_data_sets), len(trial_data_sets[0])))
+    for batch in tqdm(range(len(trial_data_sets))):
         coll.insert_one({'stims': trial_data_sets[batch],
                         'familiarization_stims': trials_fam,
                          'iteration': iteration, })
@@ -140,7 +172,7 @@ def upload_to_mongo(project, experiment, iteration, trial_data_sets, trials_fam,
     # print(list(coll.find()))
 
 
-def experiment_setup(project, experiment, iteration, meta_file_path, bucket, s3_stim_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True):
+def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True):
     """
     load all stimulus dataset data, batch for individual participants, save exp_data jsons locally, upload dataset to mongoDB
 
@@ -152,43 +184,19 @@ def experiment_setup(project, experiment, iteration, meta_file_path, bucket, s3_
     batch_set_size: int, # of stimuli to be included in each batch. should be a divisor of overall stimulus set size
     """
 
-    M = load_metadata(meta_file_path, iteration)
+    M = load_metadata(hdf5_paths, iteration)
+    print("Loaded metadata for {} stimuli".format(len(M)))
     M = build_s3_url(M, s3_stim_paths, bucket)
+    print("Loaded S3 URLs for {} stimuli".format(len(M)))
     M, M_fam, fam_trials = get_familiarization_stimuli(
         M, fam_trial_ids, iteration)
+    print("Loaded familiarization stimuli for {} stimuli".format(len(M_fam)))
     trial_data_sets = split_stim_set_to_batches(
         batch_set_size, M, project, experiment, iteration, n_entries)
+    print("Split stimuli into {} batches of {} stimuli".format(
+        n_entries, batch_set_size))
     make_familiarization_json(M_fam, project, experiment, iteration)
     upload_to_mongo(project, experiment, iteration,
                     trial_data_sets, fam_trials, overwrite)
+    print("Uploaded stimuli to mongoDB")
 
-# Debugging code
-# if __name__ == '__main__':
-#     PROJECT = "Cognitive_AI_Benchmarking"
-#     DATASET = "Physion"
-#     TASK = "OCP"
-#     ITERATION = "1"
-#     EXPERIMENT = DATASET + "_" + TASK
-
-#     bucket = (PROJECT + "_" + DATASET).replace("_","-").lower() # bucket name on AWS S3 where stimuli where be stored. `_` is not allowed in bucket names
-#     pth_to_s3_credentials = None # local path to your aws credentials in JSON format. Pass None to use shared credentials file
-#     data_root = 'stimuli/Physion_Dominoes' 
-#     data_path = '**/*' # this finds all subdirectories in data_root and loads all files in each subdirectory to s3
-#     multilevel=True # Dominoes/ contains 2 subdirectories, so the structure is multi-level
-#     stim_paths = ['maps/*_map.png', 'mp4s/*_img.mp4'] # list of paths to stimuli to upload to s3—include a pattern to match only for relevant files
-#     meta_file = data_root + '/metadata.json' # path to metadata for stimulus set
-#     fam_trial_ids = ['pilot_dominoes_0mid_d3chairs_o1plants_tdwroom_0013', 
-#                     'pilot_dominoes_1mid_J025R45_boxroom_0020'] # image ids for familiarization trials
-#     batch_set_size = 20
-#     n_entries = 10 # how many different random orders do we want?
-
-#     experiment_setup(PROJECT,
-#                  EXPERIMENT,
-#                  ITERATION,
-#                  meta_file,
-#                  bucket,
-#                  stim_paths,
-#                  fam_trial_ids,
-#                  batch_set_size,
-#                  overwrite=True,
-#                  n_entries = n_entries)
