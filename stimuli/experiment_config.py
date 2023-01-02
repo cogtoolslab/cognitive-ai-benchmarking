@@ -58,7 +58,8 @@ def build_s3_url(M, s3_stim_paths, bucket):
     """
 
     STIM_TYPES = {'*_img.mp4': 'mp4s_url',
-                  '*_map.png': 'maps_url'
+                  '*_map.png': 'maps_url',
+                  '*.hdf5': 'hdf5_url'
                   }
 
     base_pth = 'https://{}.s3.amazonaws.com/{}/{}{}'
@@ -92,22 +93,36 @@ def get_familiarization_stimuli(M, fam_trial_ids, iteration):
     return M, M_fam, trials_fam
 
 
-def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries):
+def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries, fam_stim_ids, exclude_fam_stem=False):
     """
     split full stimulus dataset into batches that will be shown to individual participants
 
     params:
     bucket: string, AWS S3 bucket name
     batch_set_size: int, # of stimuli to be included in each batch. should be a multiple of overall stimulus set size
+    fam_stim_ids: we don't want to show the familiarization stims to participants, so we need to exclude them
+    exclude_fam_stem: exclude all stimuli with the same stem as the familiarization stems (ie. matching up until the last underscore)
     """
     ##################################################################
     # most experiments require experiment-specific counterbalancing
     # for this example we assign stimuli randomly to batches
     # experiment specific-counterbalancing should go in the loop below
     ##################################################################
+    # here, we need to exclude the familiarization stims from M
+    old_len = len(M)
+    if exclude_fam_stem:
+        fam_stim_ids = set(['_'.join(x.split("_")[:-1]) for x in fam_stim_ids])
+    mask = np.ones(len(M))
+    for fam_stim_id in fam_stim_ids:
+        mask = np.logical_and(mask, ~M['stimulus_name'].str.contains(fam_stim_id)) # pairwise and
+    # exclude those
+    M = M[mask]
+    print("Excluded {} familiarization stims from being chosen".format(old_len - len(M )))
+
     trial_data_sets = []
     print("Splitting stimulus set into batches...")
     for batch in tqdm(range(n_entries)):
+
         # randomly sample the stimulus set
         assert batch_set_size <= len(
             M), "batch_set_size is larger than the number of stimuli in the dataset"
@@ -172,7 +187,7 @@ def upload_to_mongo(project, experiment, iteration, trial_data_sets, trials_fam,
     # print(list(coll.find()))
 
 
-def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True):
+def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True, exclude_fam_stem=False):
     """
     load all stimulus dataset data, batch for individual participants, save exp_data jsons locally, upload dataset to mongoDB
 
@@ -186,13 +201,13 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
 
     M = load_metadata(hdf5_paths, iteration)
     print("Loaded metadata for {} stimuli".format(len(M)))
-def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True, exclude_fam_stem=False):
+    M = build_s3_url(M, s3_stim_paths, bucket)
     print("Loaded S3 URLs for {} stimuli".format(len(M)))
     M, M_fam, fam_trials = get_familiarization_stimuli(
         M, fam_trial_ids, iteration)
     print("Loaded familiarization stimuli for {} stimuli".format(len(M_fam)))
     trial_data_sets = split_stim_set_to_batches(
-        batch_set_size, M, project, experiment, iteration, n_entries)
+        batch_set_size, M, project, experiment, iteration, n_entries, fam_trial_ids, exclude_fam_stem)
     print("Split stimuli into {} batches of {} stimuli".format(
         n_entries, batch_set_size))
     make_familiarization_json(M_fam, project, experiment, iteration)
@@ -200,4 +215,3 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
                     trial_data_sets, fam_trials, overwrite)
     print("Uploaded stimuli to mongoDB")
 
-        batch_set_size, M, project, experiment, iteration, n_entries, fam_trial_ids, exclude_fam_stem)
