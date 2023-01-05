@@ -57,19 +57,19 @@ def build_s3_url(M, s3_stim_paths, bucket):
     filenames: list of strings, AWS S3 filenames
     """
 
-    STIM_TYPES = {'*_img.mp4': 'mp4s_url',
-                  '*_map.png': 'maps_url',
-                  '*.hdf5': 'hdf5_url'
+    STIM_TYPES = {'*_img.mp4': 'mp4s',
+                  '*_map.png': 'maps',
+                  '*.hdf5': 'hdf5'
                   }
 
-    base_pth = 'https://{}.s3.amazonaws.com/{}/{}{}'
+    base_pth = 'https://{}.s3.amazonaws.com/{}{}'
     for path in s3_stim_paths:
         try: # what sort of path is this? 
             stim_type = STIM_TYPES[path]
         except: # not one obsviously corresponding to the two hard coded types
             stim_type = path.split('/')[0]
         suffix = path.split('*')[1]
-        M['{}_url'.format(stim_type)] = [base_pth.format(bucket, stim_type, x, suffix)
+        M['{}_url'.format(stim_type)] = [base_pth.format(bucket, x, suffix)
                                          for x in M['stimulus_name']]
     return M
 
