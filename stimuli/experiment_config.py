@@ -33,7 +33,10 @@ def load_metadata(paths, iteration, json_path=None):
         metadatas = [get_metadata_from_h5(path) for path in tqdm(paths)]
         # create dataframe
         M = pd.DataFrame(metadatas)
+        # we include the outcome label under a bunch of names just to be sure
         M['target_contacting_zone'] = labels
+        M['target_hit_zone_label'] = labels
+        M['does_target_contact_zone'] = labels
         print("Got data for {} stimuli".format(len(M)))
         return M
 
