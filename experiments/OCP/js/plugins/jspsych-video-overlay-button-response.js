@@ -264,7 +264,8 @@
     if(trial.stop !== null){
       video_element.addEventListener('timeupdate', function(e){
         var currenttime = video_element.currentTime;
-        if(currenttime >= trial.stop){
+        //stop the video if it reaches the stop time and hide it when it has finished playing (if the video is shorter than the stop time)
+        if(currenttime >= trial.stop || currenttime == video_element.duration){ 
           video_element.pause();
           video_element.style.visibility = "hidden"; //hide the video after stop
           enable_buttons(); //enable response after video stopped
