@@ -36,7 +36,7 @@ function logTrialtoDB(data) {
         "\titeration: " +
         iterName
     );
-    console.log("Data: " + data);
+    console.log("Data to be logged: " + data);
   }
   socket.emit("currentData", data);
 }
@@ -214,9 +214,9 @@ function buildAndRunExperiment(experimentConfig) {
         trialNum: i,
         stimulus: [n.mp4s_url],
         overlay: [n.maps_url],
-        overlay_time: 2,
+        overlay_time: 3,
         blink_time: 500,
-        stop: 1.5, //STIM DURATION stop the video after X seconds
+        stop: 0.45, //STIM DURATION stop the video after X seconds
         width: 500,
         height: 500,
         post_trial_gap: 0,
@@ -291,10 +291,10 @@ function buildAndRunExperiment(experimentConfig) {
       trialNum: i,
       stimulus: [n.mp4s_url],
       overlay: [n.maps_url],
-      overlay_time: 2,
+      overlay_time: 3,
       blink_time: 500,
       stimulus_metadata: n, //to dump all the metadata back to mongodb
-      stop: 1.5, //STIM DURATION stop the video after X seconds
+      stop: 0.45, //STIM DURATION stop the video after X seconds
       width: 500,
       height: 500,
       post_trial_gap: 0,
