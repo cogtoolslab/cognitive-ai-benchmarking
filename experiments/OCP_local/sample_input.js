@@ -1,5 +1,6 @@
 experimentConfig = {
     "gameid": "0632-7d465f5a-90e7-4af3-828d-d2bacbe9e168",
+    "familiarization_input": {},
     "stims": {
         "0": {
             "stim_ID": "pilot_dominoes_1mid_J025R45_o1full_tdwroom_0025_img",
