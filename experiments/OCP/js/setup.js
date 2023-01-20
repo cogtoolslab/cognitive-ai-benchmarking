@@ -1,4 +1,4 @@
-var DEBUG_MODE = true; //print debug and piloting information to the console
+var DEBUG_MODE = false; //print debug and piloting information to the console
 
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
