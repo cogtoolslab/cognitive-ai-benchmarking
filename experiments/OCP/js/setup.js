@@ -509,7 +509,7 @@ function buildAndRunExperiment(experimentConfig) {
         "<p> Please wait. You will be redirected back to Prolific in a few moments.</p>";
       setTimeout(function () {
         location.href =
-          "https://app.prolific.co/submissions/complete?cc=50AEDCF9";
+          "https://app.prolific.co/submissions/complete?cc=C1EP05DQ";
       }, 500);
       // sendData();
     },
