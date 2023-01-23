@@ -1,4 +1,4 @@
-var DEBUG_MODE = true; //print debug and piloting information to the console
+var DEBUG_MODE = false; //print debug and piloting information to the console
 
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
@@ -30,11 +30,11 @@ function logTrialtoDB(data) {
   if (DEBUG_MODE) {
     console.log(
       "Logging data to db: " +
-        projName +
-        "\tcol: " +
-        expName +
-        "\titeration: " +
-        iterName
+      projName +
+      "\tcol: " +
+      expName +
+      "\titeration: " +
+      iterName
     );
     console.log("Data to be logged: " + data);
   }
@@ -65,7 +65,7 @@ function launchExperiment() {
 
   socket.on("stims", (experimentConfig) => {
     if (DEBUG_MODE) {
-      console.log("Received from database:",experimentConfig);
+      console.log("Received from database:", experimentConfig);
     }
     buildAndRunExperiment(experimentConfig);
   });
@@ -203,7 +203,7 @@ function buildAndRunExperiment(experimentConfig) {
       trial.trial_duration = Math.random() * 1000 + 500; //random duration in milliseconds
     },
     post_trial_gap: 0,
-    on_finish: () => {}, // do nothing on trial end
+    on_finish: () => { }, // do nothing on trial end
   };
 
   // set up familiarization trials
@@ -244,7 +244,7 @@ function buildAndRunExperiment(experimentConfig) {
         width: 500,
         height: 500,
         post_trial_gap: 0,
-        on_finish: () => {}, //do nothing after trial shown
+        on_finish: () => { }, //do nothing after trial shown
         prolificID: prolificID,
         studyID: studyID,
         sessionID: sessionID,
@@ -469,7 +469,15 @@ function buildAndRunExperiment(experimentConfig) {
       {
         prompt: "What strategies did you use to predict what will happen?",
         rows: 5,
+        name: "strategies",
         columns: 40,
+      },
+      {
+        prompt: "To make sure that we can compensate you, please enter your Prolific ID below.",
+        rows: 1,
+        columns: 40,
+        name: "manual_prolificID",
+        required: true,
       },
       // { prompt: "What criteria mattered most when evaluating " + experimentInstance.condition + "?", rows: 5, columns: 40 },
       // { prompt: "What criteria did not matter when evaluating " + experimentInstance.condition + "?", rows: 5, columns: 40 },
@@ -488,8 +496,8 @@ function buildAndRunExperiment(experimentConfig) {
       //write the score to HTML
       trial.pages = [
         "Congrats! You are all done. Thanks for participating in our game.  You've gotten " +
-          _.round((correct / total) * 100, 0) +
-          "% correct🎉! Click 'Next' to submit this study.",
+        _.round((correct / total) * 100, 0) +
+        "% correct🎉! Click 'Next' to submit this study.",
       ];
     },
     show_clickable_nav: true,
@@ -501,7 +509,7 @@ function buildAndRunExperiment(experimentConfig) {
         "<p> Please wait. You will be redirected back to Prolific in a few moments.</p>";
       setTimeout(function () {
         location.href =
-          "https://app.prolific.co/submissions/complete?cc=50AEDCF9";
+          "https://app.prolific.co/submissions/complete?cc=C1EP05DQ";
       }, 500);
       // sendData();
     },
