@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append('..')
+
 from parse_hdf5 import get_label, get_metadata_from_h5
 from tqdm import tqdm
 from upload_to_s3 import get_filepaths
@@ -7,13 +12,7 @@ import json
 import pymongo as pm
 from glob import glob
 from IPython.display import clear_output
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append('..')
-
 from cabutils import get_db_connection  # needs to be after sys.append
-
 
 def load_metadata(paths, iteration, json_path=None):
     """
