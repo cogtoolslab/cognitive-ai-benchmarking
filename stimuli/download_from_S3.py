@@ -20,6 +20,12 @@ def download_bucket(bucket_name, local_dir):
         target = os.path.join(local_dir, obj.key)
         if not os.path.exists(os.path.dirname(target)):
             os.makedirs(os.path.dirname(target))
+        # does the file exist already?
+        if os.path.exists(target):
+            # if so, is it the same size?
+            if os.path.getsize(target) == obj.size:
+                # if so, skip it
+                continue
         bucket.download_file(obj.key, target)
     print('Downloaded all files from bucket {} to {}'.format(bucket_name, local_dir))
 
