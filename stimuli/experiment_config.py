@@ -112,6 +112,8 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     # experiment specific-counterbalancing should go in the loop below
     ##################################################################
     # here, we need to exclude the familiarization stims from M
+    if len(M) > batch_set_size:
+        print("There are more stimuli than batch_set_size. The generated batches will contain different stimuli.")
     old_len = len(M)
     if exclude_fam_stem:
         fam_stim_ids = set(['_'.join(x.split("_")[:-1]) for x in fam_stim_ids])
