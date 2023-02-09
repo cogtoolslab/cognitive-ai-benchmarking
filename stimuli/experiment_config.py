@@ -4,6 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('..')
 
 from parse_hdf5 import get_label, get_metadata_from_h5
+import random
 from tqdm import tqdm
 from upload_to_s3 import get_filepaths
 import numpy as np
@@ -130,12 +131,16 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
             M), "batch_set_size is larger than the number of stimuli in the dataset"
         M_set = M.sample(n=batch_set_size, replace=False,
                          random_state=np.random.get_state()[1] + batch)
+        # make sure we shuffle the stimuli
         assert len(M_set) == M_set['stimulus_name'].nunique()
         # save json for each batch to disk in stimulus folder
         # M_set.transpose().to_json('{}_{}_{}_trial_data_{}.json'.format(project, experiment, iteration, batch))
         cur_dict = M_set.transpose().to_dict()
+        # make sure that the order is shuffled
+        cur_items = list(cur_dict.items())
+        random.shuffle(cur_items)
         trial_data_sets.append(
-            {str(key): value for key, value in cur_dict.items()})
+            {str(k[0]): k[1] for k in cur_items})
         # save trial_data_sets to disk
         # fails if a ndarray is somewhere in the structure
         with open('{}_{}_trial_data_{}.json'.format(project, experiment, iteration), 'w') as f:
