@@ -96,7 +96,7 @@ def get_familiarization_stimuli(M, fam_trial_ids, iteration):
     return M, M_fam, trials_fam
 
 
-def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries, fam_stim_ids, exclude_fam_stem=False):
+def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries, fam_stim_ids, exclude_fam_stem=False, ensure_same_stimuli=False, balance_stimuli=True):
     """
     split full stimulus dataset into batches that will be shown to individual participants
 
@@ -112,8 +112,6 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     # experiment specific-counterbalancing should go in the loop below
     ##################################################################
     # here, we need to exclude the familiarization stims from M
-    if len(M) > batch_set_size:
-        print("There are more stimuli than batch_set_size. The generated batches will contain different stimuli.")
     old_len = len(M)
     if exclude_fam_stem:
         fam_stim_ids = set(['_'.join(x.split("_")[:-1]) for x in fam_stim_ids])
@@ -123,6 +121,12 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     # exclude those
     M = M[mask]
     print("Excluded {} familiarization stims from being chosen (beyond specific familiarization stims)".format(old_len - len(M)))
+    
+    if len(M) > batch_set_size and not ensure_same_stimuli:
+        print("There are more stimuli than batch_set_size. The generated batches will contain different stimuli. Use ensure_same_stimuli=True to ensure that each batch contains the same stimuli.")
+    if len(M) > batch_set_size and ensure_same_stimuli:
+        print("Sampling {} stimuli to ensure that each set contains the same stimuli".format(batch_set_size))
+        M = M.sample(batch_set_size)
 
     trial_data_sets = []
     print("Splitting stimulus set into batches...")
