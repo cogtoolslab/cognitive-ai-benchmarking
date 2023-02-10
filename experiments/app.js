@@ -145,9 +145,7 @@ function initializeWithTrials(socket, proj_name, collection, it_name) {
         inputid: body['_id'], // using the mongo record ID
         stims: omit(body.stims, ['_id']),
         familiarization_stims: omit(body.familiarization_stims, ['_id']),
-        stim_version: body.stim_version, //TODO fix stim version
-        // TODO add other properties here
-
+        stim_version: body.stim_version,
       };
       socket.emit('stims', packet);
     } else {

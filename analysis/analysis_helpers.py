@@ -100,11 +100,10 @@ def load_and_preprocess_data(path_to_data):
 def basic_preprocessing(_D):
     try:
         # preprocess RTs (subtract 2500ms presentation time, log transform)
-        #TODO this needs to be the time the flashing thing is shown, not hte length of the vid
         ## get presentation time
-        assert len(np.unique(_D['stop'].dropna())) == 1, "stop time is not constant across trials"
-        stop = _D['stop'].dropna().values[0]
-        _D = _D.assign(RT=_D['rt'] - stop * 1000)
+        assert len(np.unique(_D['overlay_time'].dropna())) == 1, "stop time is not constant across trials"
+        overlay_time = _D['overlay_time'].dropna().values[0]
+        _D = _D.assign(RT=_D['rt'] - overlay_time)
         _D = _D.assign(logRT=np.log(_D['RT']))
         _D = _D.drop(columns=['rt'], axis=1)
     except:
