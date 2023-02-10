@@ -253,6 +253,28 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
         batch_set_size, M, project, experiment, iteration, n_entries, fam_trial_ids, exclude_fam_stem)
     print("Split stimuli into {} batches of {} stimuli".format(
         n_entries, batch_set_size))
+
+    print("Running verifications")
+    prev_stim_names = None
+    # run a number of sanity checks on the stimuli sets
+    assert len(trial_data_sets) == n_entries, "The number of batches does not match the number of entries."
+    for t_set in trial_data_sets:
+        assert len(t_set) == batch_set_size, "The number of stimuli in a batch does not match the batch_set_size."
+    for t_set in tqdm(trial_data_sets):
+        assert len(t_set) == batch_set_size
+        # are the stimuli sorted?
+        stim_names = [s['stimulus_name'] for i,s in t_set.items()]
+        if stim_names == sorted(stim_names): print("The stimuli names are sorted—this should not be the case after randomization except by chance. If you seeing multiple of this message, there is a problem.")
+        if len(stim_names) != len(set(stim_names)): print("Duplicate stimuli names found.")
+        if not prev_stim_names is None and ensure_same_stimuli:
+            assert set(prev_stim_names) == set(stim_names), "Two batches do not contain the same stimuli."
+        prev_stim_names = stim_names
+        if balance_stimuli:
+            assert len([s for s in t_set.values() if s['target_hit_zone_label'] == True]) == len([s for s in t_set.values() if s['target_hit_zone_label'] == False]), "The stimuli in a batch are not balanced."
+        for s in stim_names:
+            assert s not in fam_trial_ids, "A familiarization stimulus is included in the experiment stimuli."
+    print("Verifications passed")
+
     make_familiarization_json(M_fam, project, experiment, iteration)
     upload_to_mongo(project, experiment, iteration,
                     trial_data_sets, fam_trials, overwrite)
