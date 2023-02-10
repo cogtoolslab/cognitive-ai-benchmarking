@@ -85,10 +85,19 @@ def get_familiarization_stimuli(M, fam_trial_ids, iteration):
     M: main pandas dataframe
     fam_trial_ids: list of strings, stim_id for familiarization stimuli
     """
+    # did someone forget to remove to appendix from the stim_id name? ಠ_ಠ
+    for f in fam_trial_ids.copy():
+        if '_img' in f:
+            fam_trial_ids.remove(f)
+            fam_trial_ids.append(f.replace('_img', ''))
+        if '_map' in f:
+            fam_trial_ids.remove(f)
+            fam_trial_ids.append(f.replace('_map', ''))
     M_fam = M[M['stimulus_name'].isin(fam_trial_ids)]
     trials_fam = M_fam.transpose().to_dict()
     trials_fam = {str(key): value for key, value in trials_fam.items()}
     assert len(M_fam) == len(M_fam['stimulus_name'].unique())
+    assert len(M_fam) == len(fam_trial_ids), "Number of familiarization stimuli in M_fam ({}) does not match number of familiarization stimuli in fam_trial_ids ({})".format(len(M_fam), len(fam_trial_ids)) + "\nWe are missing the following stimuli: {}".format(set(fam_trial_ids) - set(M_fam['stimulus_name'].unique()))
     # drop familiarization trials from main dataframe
     for f in M_fam['stimulus_name']:
         ind = M.index[M['stimulus_name'] == f]
@@ -96,7 +105,7 @@ def get_familiarization_stimuli(M, fam_trial_ids, iteration):
     return M, M_fam, trials_fam
 
 
-def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries, fam_stim_ids, exclude_fam_stem=False, ensure_same_stimuli=False, balance_stimuli=True):
+def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration, n_entries, fam_stim_ids, exclude_fam_stem=False):
     """
     split full stimulus dataset into batches that will be shown to individual participants
 
@@ -122,16 +131,9 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     M = M[mask]
     print("Excluded {} familiarization stims from being chosen (beyond specific familiarization stims)".format(old_len - len(M)))
     
-    if len(M) > batch_set_size and not ensure_same_stimuli:
-        print("There are more stimuli than batch_set_size. The generated batches will contain different stimuli. Use ensure_same_stimuli=True to ensure that each batch contains the same stimuli.")
-    if len(M) > batch_set_size and ensure_same_stimuli:
-        print("Sampling {} stimuli to ensure that each set contains the same stimuli".format(batch_set_size))
-        M = M.sample(batch_set_size)
-
     trial_data_sets = []
     print("Splitting stimulus set into batches...")
     for batch in tqdm(range(n_entries)):
-
         # randomly sample the stimulus set
         assert batch_set_size <= len(
             M), "batch_set_size is larger than the number of stimuli in the dataset"
@@ -200,7 +202,7 @@ def upload_to_mongo(project, experiment, iteration, trial_data_sets, trials_fam,
     # print(list(coll.find()))
 
 
-def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True, exclude_fam_stem=False):
+def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5_paths, fam_trial_ids, batch_set_size, n_entries, overwrite=True, exclude_fam_stem=False, ensure_same_stimuli=True, balance_stimuli=True):
     """
     load all stimulus dataset data, batch for individual participants, save exp_data jsons locally, upload dataset to mongoDB
 
