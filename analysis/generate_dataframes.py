@@ -228,10 +228,23 @@ def pull_dataframes_from_mongo(study, bucket_name, stim_version, iterationName, 
         df_familiarization_entries.drop(labels=['prolificID'],axis=1, inplace=True)
     return df_trial_entries,df_familiarization_entries
 
-def pull_straight_df_from_mongo(study, database_name):
-    """Simply gets entire study from mongo, no processing applied"""
-    db = conn[database_name]
-    coll = db[study]
+def fill_ProlificIDs(df):
+    """A bug in Prolific can prevent the URL fields from being served out. This tries to recreate them from the field."""
+    for game_id in tqdm(df['gameID'].unique()):
+        m = df['gameID'] == game_id
+        if set(df[m]['prolificID'].unique()) == set([None]):
+            # no prolific ID recorded. Can we recover it?
+            responses = df[m]['responses'].dropna()
+            pID = df[m]['prolificID'].unique()[0] # default value is None
+            for r in responses:
+                if "manual_prolificID" in r:
+                    try:
+                        r = eval(r) # really bad idea to run eval on data from participants TODO make safe
+                    except:
+                        continue
+                    pID = r['manual_prolificID']
+            df.loc[m,'prolificID'] = pID
+    return df
 
 if __name__ == "__main__":
     # DEBUG
