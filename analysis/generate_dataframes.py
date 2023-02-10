@@ -233,17 +233,31 @@ def pull_straight_df_from_mongo(study, database_name):
     db = conn[database_name]
     coll = db[study]
 
-    # get dataframe of served stims
-    df = coll.find({})
-    df = pd.DataFrame(df)
-    
-    assert len(df)>0, "df from mongo empty"
-
-    return df
-
 if __name__ == "__main__":
-    print("Fetching neurIPS 2021 results")
-    for i,it_fields in enumerate(neurips2021_iterations):
-        print("Fetching",i+1,"from",len(neurips2021_iterations),"—",it_fields['study'])
-        get_dfs_from_mongo(**it_fields)
-    print("Done.")
+    # DEBUG
+    PROJECT = "Physion_V1_5" 
+    DATASET = "Dominoes"
+    TASK = "OCP"
+    ITERATION = "pilot_1"
+    EXPERIMENT = DATASET + "_" + TASK
+    pull_dataframes_from_mongo(PROJECT, DATASET, TASK, ITERATION, anonymizeIDs=False)
+    # /DEBUG
+    # parse for pull_dataframes_from_mongo
+    parser = argparse.ArgumentParser()
+    parser.add_argument("project", help="Project name (eg. Physion_V1_5)")
+    parser.add_argument("dataset", help="Dataset name (eg. Dominoes)")
+    parser.add_argument("task", help="Task name (eg. OCP)")
+    parser.add_argument("iteration", help="Iteration name (eg. pilot_1)")
+    parser.add_argument("--outputPath", default=csv_dir, help="Path to save output to", required=False)
+    parser.add_argument("--anonymizeIDs", default=False, help="Whether to anonymize prolificIDs", required=False)
+    args = parser.parse_args()
+
+    # get data
+    df_trial_entries,df_familiarization_entries = pull_dataframes_from_mongo(args.project, args.dataset, args.task, args.iteration, anonymizeIDs=args.anonymizeIDs)
+    
+    # save data
+    filename = "{}_{}_{}_{}".format(args.project, args.dataset, args.task, args.iteration)
+    df_trial_entries.to_csv(args.outputPath + '/' + filename + '.csv')
+    df_familiarization_entries.to_csv(args.outputPath + '/' + filename + '_familiarization.csv')
+    print("Saved to",args.outputPath + '/' + filename + '.csv and ' + args.outputPath + '/' + filename + '_familiarization.csv')
+    
