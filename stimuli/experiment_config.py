@@ -219,6 +219,36 @@ def experiment_setup(project, experiment, iteration, bucket, s3_stim_paths, hdf5
     M, M_fam, fam_trials = get_familiarization_stimuli(
         M, fam_trial_ids, iteration)
     print("Loaded familiarization stimuli for {} stimuli".format(len(M_fam)))
+
+    # ensure various properties of the stim set
+    assert len(M) >= batch_set_size, "batch_set_size must be smaller than the number of stimuli."
+    if len(M) > batch_set_size:
+        if not ensure_same_stimuli:
+            print("There are more stimuli than batch_set_size. The generated batches will contain different stimuli. Use ensure_same_stimuli=True to ensure that each batch contains the same stimuli.")
+        if ensure_same_stimuli and not balance_stimuli:
+            print("Sampling {} stimuli to ensure that each set contains the same stimuli. Label balancing not applied.".format(batch_set_size))
+            M = M.sample(batch_set_size)
+        if ensure_same_stimuli and balance_stimuli:
+            assert batch_set_size % 2 == 0, "When having a unique set of stimuli, batch_set_size must be even."
+            print("Sampling {} stimuli for each label for a total of {} stimuli to ensure that each set contains the same stimuli. Label balancing applied.".format(batch_set_size//2, batch_set_size))
+            M_pos = M[M['target_hit_zone_label'] == True]
+            M_neg = M[M['target_hit_zone_label'] == False]
+            M_pos = M_pos.sample(batch_set_size//2)
+            M_neg = M_neg.sample(batch_set_size//2)
+            M = pd.concat([M_pos, M_neg])
+        if not ensure_same_stimuli and balance_stimuli:
+            print("Balancing labels in larger set.")
+            M_pos = M[M['target_hit_zone_label'] == True]
+            M_neg = M[M['target_hit_zone_label'] == False]
+            min_len = min(len(M_pos), len(M_neg))
+            M_pos = M_pos.sample(min_len)
+            M_neg = M_neg.sample(min_len)
+            M = pd.concat([M_pos, M_neg])
+    elif len(M) == batch_set_size:
+        print("There are exactly as many stimuli as batch_set_size. The generated batches will contain the same stimuli.")
+        if balance_stimuli:
+            assert len(M[M['target_hit_zone_label'] == True]) == len(M[M['target_hit_zone_label'] == False]), "There are not an equal number of positive and negative labels in the stimulus set and no way to subset for the given batch size."
+
     trial_data_sets = split_stim_set_to_batches(
         batch_set_size, M, project, experiment, iteration, n_entries, fam_trial_ids, exclude_fam_stem)
     print("Split stimuli into {} batches of {} stimuli".format(
