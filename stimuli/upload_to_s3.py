@@ -1,8 +1,5 @@
-import os
-import sys
 import json
 import boto3
-import logging
 from tqdm import tqdm
 from glob import glob
 from botocore.exceptions import ClientError

@@ -72,7 +72,7 @@ function success(response, text) {
 }
 
 function mongoConnectWithRetry(delayInMilliseconds, callback) {
-  MongoClient.connect(mongoURL, (err, connection) => {
+  MongoClient.connect(mongoURL, {},(err, connection) => {
     if (err) {
       console.error(`Error connecting to MongoDB: ${err}`);
       setTimeout(() => mongoConnectWithRetry(delayInMilliseconds, callback), delayInMilliseconds);

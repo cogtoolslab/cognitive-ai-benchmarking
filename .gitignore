@@ -173,3 +173,6 @@ stimuli/Physion_Dominoes
 
 stimuli/*.json
 stimuli/Physion_Dominoes.zip
+
+results/csv/
+results/plots/
