@@ -94,8 +94,110 @@ function markAnnotation(collection, gameid, sketchid) {
       console.log(`successfully marked annotation. result: ${JSON.stringify(items).substring(0,200)}`);
     }
   });
-};
+}
 
+function updateLastServedAttribute(sequencesCollection, gameId, sequenceId) {
+  sequencesCollection.update({ _id: ObjectID(sequenceId) }, {
+    $push: { games: gameId },
+    $set: { last_served: new Date() },
+    $inc: { numGames: 1 }
+  }, function (err, items) {
+    if (err) {
+      console.log(`error marking annotation data: ${err}`);
+    } else {
+      console.log(`successfully marked annotation. result: ${JSON.stringify(items).substring(0,200)}`);
+    }
+  });
+}
+
+function getArraysDiff(arr1, arr2) {
+  arr2 = [...arr2];
+  return arr1.filter(x => {
+    var index = arr2.indexOf(x);
+    if (index !== -1) {
+      arr2.splice(index, 1);
+      return false;
+    }
+    return true;
+  });
+}
+
+async function processCompletedGamesCount(sequence, {connection, databaseName, collectionName, iterationName}, resultingSequencesByGamesPlayed) {
+  const game_ids = sequence.games || [];
+  const outputDatabase = connection.db(databaseName.replace('_input', '_output'));
+  const outputCollection = outputDatabase.collection(collectionName);
+  const results = await outputCollection.aggregate([
+    { $match: { gameID: {$in: game_ids}, iterationName: iterationName } },
+    { "$project": {"id": "$_id", _id: 0, "gameID": 1, "stimulus_name": 1} },
+  ]).toArray();
+
+  let game_sims = {}
+  for (let i = 0; i < results.length; i++) {
+      if (!game_sims[results[i]['gameID']]) {
+        game_sims[results[i]['gameID']] = []
+      }
+      game_sims[results[i]['gameID']].push(results[i]['stimulus_name'])
+  }
+  let gamesPlayed = 0;
+  for (let i = 0; i < game_ids.length; i++) {
+    let sequence_stims = [];
+    for (const key of Object.keys(sequence.stims)) {
+      sequence_stims.push(sequence.stims[key].stimulus_name);
+    }
+    if (getArraysDiff(sequence_stims, game_sims[game_ids[i]] || []).length === 0) {
+      gamesPlayed++;
+    }
+  }
+
+  if (!resultingSequencesByGamesPlayed[gamesPlayed]) {
+    resultingSequencesByGamesPlayed[gamesPlayed] = [];
+  }
+  resultingSequencesByGamesPlayed[gamesPlayed].push(sequence);
+
+  return resultingSequencesByGamesPlayed;
+}
+
+async function findNextSequence(sequencesCollection, {connection, databaseName, collectionName, iterationName}) {
+  // sort by number of games previously played, then by last served time
+  const results = await sequencesCollection.aggregate([
+    { $match: { iteration: iterationName } }, // only serve the iteration we want
+    { $addFields: { games_count: {$size: { "$ifNull": [ "$games", [] ] } } } },
+    { "$project": {"id": "$_id", _id: 0, "games_count": 1, "games": 1} },
+    { $sort: { games_count: 1, last_served: 1 } },
+  ]).toArray()
+
+  let resultingSequencesByGamesPlayed = [];
+  for (var i = 0; i < results.length; i++) {
+    // if the first result has never been served, serve it
+    // if (results[i]['games_count'] === 0) {
+    //   sequencesCollection.find({_id: results[i]['id']}).toArray((err, result) => {
+    //     if (err) {
+    //       console.log("Error while getting sequences for iteration ", iterationName, ", details: ", err);
+    //       return callback(null);
+    //     } else {
+    //       return callback(result[0]);
+    //     }
+    //   });
+    //   break;
+    // }
+
+    const sequences = await sequencesCollection.find({_id: results[i]['id']}).toArray()
+    resultingSequencesByGamesPlayed = await processCompletedGamesCount(
+        sequences[0],
+        {connection, databaseName, collectionName, iterationName},
+        resultingSequencesByGamesPlayed,
+    )
+  }
+  if (resultingSequencesByGamesPlayed.length > 0) {
+    // Let's sort the sequences by the number of games played and then by the last served time,
+    // and let's serve the first one (least played and served the longest ago)
+    let resultingSequences = resultingSequencesByGamesPlayed.slice(0,1)[0].sort((a,b) => a.last_served > b.last_served ? 1 : a.last_served < b.last_served ? -1 : 0);
+    return resultingSequences[0];
+  } else {
+    console.log("Error while getting sequences for iteration ", iterationName, ", details: no sequences found");
+    return null;
+  }
+}
 
 function serve() {
   mongoConnectWithRetry(2000, (connection) => {
@@ -142,7 +244,7 @@ function serve() {
       });
     });
 
-    app.post('/db/getstims', (request, response) => {
+    app.post('/db/getstims', async (request, response) => {
       if (!request.body) {
         return failure(response, '/db/getstims needs post request body');
       }
@@ -151,7 +253,7 @@ function serve() {
 
       const databaseName = request.body.dbname;
       const collectionName = request.body.colname;
-      const iterName = request.body.it_name;
+      const iterationName = request.body.it_name;
       if (!collectionName) {
         return failure(response, '/db/getstims needs collection');
       }
@@ -160,28 +262,22 @@ function serve() {
       }
 
       const database = connection.db(databaseName);
-      const collection = database.collection(collectionName);
+      const sequencesCollection = database.collection(collectionName);
 
-      // sort by number of times previously served up and take the first
-      collection.aggregate([
-        { $match: { iteration: iterName } }, // only serve the iteration we want
-        { $sort: { numGames: 1 } },
-        { $limit: 1 }
-      ]).toArray((err, results) => {
-        if (err) {
-          console.log("Error while aggregating for iternamer", iterName, " error: ", err);
-        } else {
-          // Immediately mark as annotated so others won't get it too
-          try {
-            markAnnotation(collection, request.body.gameid, results[0]['_id']);
-          }
-          catch (err) {
-            console.log("Couldn't mark gameID as served", err);
-          }
-          console.log("Sending", results[0]);
-          response.send(results[0]);
-        }
-      });
+      const nextSequence = await findNextSequence(
+          sequencesCollection,
+          {connection, databaseName, collectionName, iterationName},
+      );
+
+      // Mark as served so others won't get it too
+      try {
+        updateLastServedAttribute(sequencesCollection, request.body.gameid, nextSequence._id);
+      } catch (err) {
+        console.log("Couldn't mark sequence as served", err);
+      }
+      console.log("Sending", nextSequence);
+      return response.send(nextSequence);
+
     });
 
     app.post('/db/exists', (request, response) => {
