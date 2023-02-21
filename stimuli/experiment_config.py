@@ -1,21 +1,11 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(''))))
 sys.path.append('..')
-import h5py
-import random
-import itertools
-import ast
-from IPython.display import clear_output
-from glob import glob
-import pymongo as pm
 import json
 import pandas as pd
-from PIL import Image
 import numpy as np
 from cabutils import get_db_connection  # needs to be after sys.append
-from upload_to_s3 import get_filepaths
-import os
 
 
 def load_metadata(meta_file, iteration):
