@@ -36,7 +36,8 @@ def get_bucket_urls(bucket_name):
     objects = list(bucket.objects.all())
     urls = []
     for obj in objects:
-        urls.append('https://s3.amazonaws.com/{}/{}'.format(bucket_name, obj.key))
+        url = 'https://{}.s3.amazonaws.com/{}'.format(bucket_name, obj.key)
+        urls.append(url)
     return urls
 
 def save_url_lists(bucket_names, local_dir=None):
