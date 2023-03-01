@@ -335,7 +335,7 @@ function buildAndRunExperiment(experimentConfig) {
     str4: "<p> We expect this study to take approximately 10 to 15 minutes to complete, \
     including the time it takes to read these instructions.</p>",
     str5: "<p>If you encounter a problem or error, send us an email \
-    (cogtoolslab.requester@gmail.com) and we will make sure you're compensated \
+    (<b><a href='mailto://cogtoolslab.requester@gmail.com'>cogtoolslab.requester@gmail.com</a></b>) and we will make sure you're compensated \
     for your time! Please pay attention and do your best! Thank you!</p><p> Note: \
       We recommend using Firefox or Chrome. We have not tested this study in other browsers.</p>",
   };
