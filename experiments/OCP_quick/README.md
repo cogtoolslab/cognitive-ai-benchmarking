@@ -1,0 +1,1 @@
+==This version is identical to OCP, except for a reduced stimulus presentation time.== This is to keep compatibility with scenarios that require less of the video to be played. The duration of the initial presentation is accordingly lengthened.
