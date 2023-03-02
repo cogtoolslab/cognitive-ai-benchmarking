@@ -159,7 +159,7 @@ def apply_exclusion_criteria(D, familiarization_D=None, verbose=False):
 
     # what is 97.5th percentile for random sequences of length numTrials and p=0.5?
     n_trials = D_trials['stim_ID'].nunique()
-    thresh = 1000 # DEBUG get_streak_thresh(n_trials, 0.5)
+    thresh = get_streak_thresh(n_trials, 0.5)
     if verbose:
         print('97.5th percentile for streak length is {}.'.format(thresh))
 
