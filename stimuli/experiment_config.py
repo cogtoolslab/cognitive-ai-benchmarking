@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('..')
 
+from collections import OrderedDict
 from parse_hdf5 import get_label, get_metadata_from_h5
 import random
 from tqdm import tqdm
@@ -145,14 +146,16 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
         # M_set.transpose().to_json('{}_{}_{}_trial_data_{}.json'.format(project, experiment, iteration, batch))
         cur_dict = M_set.transpose().to_dict()
         # make sure that the order is shuffled
-        cur_items = list(cur_dict.items())
-        random.shuffle(cur_items)
+        cur_stims = list(cur_dict.values())
+        random.shuffle(cur_stims)
+        # we need to regenerate the keys to make sure
         trial_data_sets.append(
-            {str(k[0]): k[1] for k in cur_items})
+            OrderedDict((str(i),k) for i,k in enumerate(cur_stims))
+        )
         # save trial_data_sets to disk
         # fails if a ndarray is somewhere in the structure
-        with open('{}_{}_trial_data_{}.json'.format(project, experiment, iteration), 'w') as f:
-            json.dump(trial_data_sets[batch], f)
+        # with open('{}_{}_trial_data_{}.json'.format(project, experiment, iteration), 'w') as f:
+            # json.dump(trial_data_sets[batch], f)
     print("Saving—might take a second...")
     # save to disk as dataframe
     csv_name = '{}_{}_trial_data_{}.csv'.format(project, experiment, iteration)
