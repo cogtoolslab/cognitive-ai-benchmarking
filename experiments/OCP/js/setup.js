@@ -509,7 +509,7 @@ function buildAndRunExperiment(experimentConfig) {
         "<p> Please wait. You will be redirected back to Prolific in a few moments.</p>";
       setTimeout(function () {
         location.href =
-          "https://app.prolific.co/submissions/complete?cc=C1EP05DQ";
+          "https://app.prolific.co/submissions/complete?cc=CZUENR6E";
       }, 500);
       // sendData();
     },
@@ -539,9 +539,24 @@ function buildAndRunExperiment(experimentConfig) {
   if (includeMentalRotation) trials.push(mentalRotationChoice);
   if (includeGoodbye) trials.push(goodbye);
 
+  // get the list of filenames to preload
+  var image_urls = _.map(trials, function (trial) {
+    if (trial.type == "video-overlay-button-response") {
+      return trial.maps_url;
+    }
+  });
+
+  var video_urls = _.map(trials, function (trial) {
+    if (trial.type == "video-overlay-button-response") {
+      return trial.mp4s_url;
+    }
+  });
+
   jsPsych.init({
     timeline: trials,
     default_iti: 1000,
     show_progress_bar: true,
+    preload_video: video_urls,
+    preload_images: image_urls,
   });
 }

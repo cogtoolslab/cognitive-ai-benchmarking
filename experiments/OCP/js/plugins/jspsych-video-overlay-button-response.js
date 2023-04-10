@@ -15,7 +15,7 @@
   var plugin = {};
 
   jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'overlay', 'image');
-  // jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');  // for some reason the preloading of videos is currently broken
+  jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');  // for some reason the preloading of videos is currently broken
 
   plugin.info = {
     name: 'video-overlay-button-response',
@@ -174,8 +174,6 @@
     // }
     video_html +=">";
     
-    //preloading blobs doesn't work for safari
-    //HACK turn off preloading for Safari
     var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // https://stackoverflow.com/questions/7944460/detect-safari-browser#23522755
     
     var video_preload_blob = jsPsych.pluginAPI.getVideoBuffer(trial.stimulus[0]);
