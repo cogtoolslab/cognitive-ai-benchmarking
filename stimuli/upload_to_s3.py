@@ -43,15 +43,33 @@ def create_bucket(client, bucket, location='us-east-2'):
     try:
         b = client.create_bucket(Bucket=bucket,
                                  CreateBucketConfiguration={
-                                     "LocationConstraint": location})
+                                     "LocationConstraint": location,
+                # CORS rules
+                "CORSRules": [
+                    {
+                        "AllowedHeaders": ["*"],
+                        "AllowedMethods": ["GET"],
+                        "AllowedOrigins": ["*"],
+                    }
+                ],
+            },
+        )
         print('Created new bucket.')
-    except Exception as e:
-        b = client.Bucket(bucket)
+    except BucketAlreadyExists:
+        bucket = client.Bucket(bucket)
         print('Bucket exists. Skipping creation.')
-        # logging.error(e)
-    b.Acl().put(ACL="public-read")
-    return b
+    except ClientError as e:
+        print(f"Error creating bucket: {e}")
+        return None
 
+    # Set ACL to public-read
+    try:
+        bucket.Acl().put(ACL="public-read")
+        print('Set ACL to public-read.')
+    except ClientError as e:
+        print(f"Error setting ACL: {e}")
+
+    return bucket
 
 def check_exists(client, bucket, stim):
     """
