@@ -538,7 +538,27 @@ function buildAndRunExperiment(experimentConfig) {
   if (includeSurvey) trials.push(exitSurveyAge);
   if (includeMentalRotation) trials.push(mentalRotationChoice);
   if (includeGoodbye) trials.push(goodbye);
+  // get the list of filenames to preload
+  var image_urls = _.map(trials, function (trial) {
+    if (trial.type == "video-overlay-button-response") {
+      return trial.maps_url;
+    }
+  });
 
+  var video_urls = _.map(trials, function (trial) {
+    if (trial.type == "video-overlay-button-response") {
+      return trial.mp4s_url;
+    }
+  });
+
+  jsPsych.init({
+    timeline: trials,
+    default_iti: 1000,
+    show_progress_bar: true,
+    preload_video: video_urls,
+    preload_images: image_urls,
+  });
+}
   jsPsych.init({
     timeline: trials,
     default_iti: 1000,

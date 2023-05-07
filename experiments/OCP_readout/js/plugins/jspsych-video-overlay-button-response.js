@@ -15,7 +15,7 @@
   var plugin = {};
 
   jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'overlay', 'image');
-  // jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');  // for some reason the preloading of videos is currently broken
+  jsPsych.pluginAPI.registerPreload('video-overlay-button-response', 'stimulus', 'video');  // for some reason the preloading of videos is currently broken
 
   plugin.info = {
     name: 'video-overlay-button-response',
