@@ -559,9 +559,3 @@ function buildAndRunExperiment(experimentConfig) {
     preload_images: image_urls,
   });
 }
-  jsPsych.init({
-    timeline: trials,
-    default_iti: 1000,
-    show_progress_bar: true,
-  });
-}
