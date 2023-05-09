@@ -129,7 +129,7 @@ def split_stim_set_to_batches(batch_set_size, M, project, experiment, iteration,
     for fam_stim_id in fam_stim_ids:
         mask = np.logical_and(mask, ~M['stimulus_name'].str.contains(fam_stim_id)) # pairwise and
     # exclude those
-    M = M[mask]
+    M = M[mask == 1]
     print("Excluded {} familiarization stims from being chosen (beyond specific familiarization stims)".format(old_len - len(M)))
     
     trial_data_sets = []
