@@ -121,7 +121,7 @@ def get_dfs_from_mongo(project, dataset, task, iteration, anonymizeIDs=True):
     per_stim_agg.to_csv(os.path.join(csv_dir,"human_accuracy_{}_{}_{}.csv".format(project, dataset++task, iteration)))
     return
 
-def pull_dataframes_from_mongo(project, dataset, task, iteration, anonymizeIDs=True):
+def pull_dataframes_from_mongo(project, dataset, task, iteration, anonymizeIDs=True, raw_data=False):
     """Gets dataframes from mongo and returns both the experimental and the familiarization trials"""
     # connect to database
     experiment = dataset+'_'+task
@@ -147,25 +147,32 @@ def pull_dataframes_from_mongo(project, dataset, task, iteration, anonymizeIDs=T
     assert len(df)>0, "df from mongo empty"
 
     print("Got {} rows from the database".format(len(df)))
+    if raw_data: print("Returning raw data")
 
     pID_count = df['prolificID'].nunique()
-    df = fill_ProlificIDs(df)
-    if df['prolificID'].nunique() > pID_count: print("Filled {} Prolific IDs from manually recorded ones".format(df['prolificID'].nunique() - pID_count))
-    # Which gameids have completed all trials that were served to them? 
-    # Note that this will also exclude complete trials whose games aren't in the stim database anymore (ie if it has been dropped)
+    if not raw_data:
+        df = fill_ProlificIDs(df)
+        if df['prolificID'].nunique() > pID_count: print("Filled {} Prolific IDs from manually recorded ones".format(df['prolificID'].nunique() - pID_count))
+        # Which gameids have completed all trials that were served to them? 
+        # Note that this will also exclude complete trials whose games aren't in the stim database anymore (ie if it has been dropped)
 
     complete_gameids = []
     for gameid in tqdm(df['gameID'].unique()):
         # if participants have given a sex, they have completed the experiment
         # TODO generalize this to other tasks
-        responses = df[df['gameID'] == gameid]['responses']
-        for response in list(responses):
-            try:
-                if 'participantSex' in response:
-                    complete_gameids.append(gameid)
-                    break
-            except TypeError as e:
-                pass
+        try:
+            responses = df[df['gameID'] == gameid]['responses']
+            for response in list(responses):
+                try:
+                    if 'participantSex' in response:
+                        complete_gameids.append(gameid)
+                        break
+                except TypeError as e:
+                    pass
+        except KeyError as e:
+            if len(df[df['gameID'] == gameid]) > 10:
+                print("No response field for gameID",gameid)
+            continue
         #get the corresponding games
         # served_stim_ID = None
         # for stims_ID in stim_df.index:
@@ -193,18 +200,21 @@ def pull_dataframes_from_mongo(project, dataset, task, iteration, anonymizeIDs=T
     # add scenario name
     df['scenarioName'] = dataset
 
+    if not raw_data:
     # apply basic preprocessing
-    df = basic_preprocessing(df)
-
-    # apply exclusion criteria
-    df = apply_exclusion_criteria(df,verbose=True) # should automatically pull familiarization trials from full dataframe
+        df = basic_preprocessing(df)
+        # apply exclusion criteria
+        df = apply_exclusion_criteria(df,verbose=True) # should automatically pull familiarization trials from full dataframe
 
     #mark unfinished entries
-    df['complete_experiment'] = df['gameID'].isin(complete_gameids) 
-    # # we only consider the first 100 gameIDs
-    # complete_gameids = complete_gameids[:100]       
-    #exclude unfinished games ⚠️
-    df = df[df['gameID'].isin(complete_gameids)]
+    if not raw_data:
+        df['complete_experiment'] = df['gameID'].isin(complete_gameids) 
+        # # we only consider the first 100 gameIDs
+        # complete_gameids = complete_gameids[:100]       
+        #exclude unfinished games ⚠️
+        old_len = len(df)
+        df = df[df['gameID'].isin(complete_gameids)]
+        print("Excluded {} unfinished games".format(old_len - len(df)))
     #Generate some useful views
     df_trial_entries = df[(df['condition'] == 'prediction') & (df['trial_type'] == 'video-overlay-button-response')] #only experimental trials
     df_trial_entries = df_trial_entries.assign(study=[experiment]*len(df_trial_entries), axis=0)
