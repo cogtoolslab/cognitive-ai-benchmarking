@@ -249,7 +249,7 @@ def apply_exclusion_criteria(D, familiarization_D=None, verbose=False):
     D = D[~D[userIDcol].isin(flaggedIDs)]
     numSubs = len(np.unique(D[userIDcol].values))
     if verbose:
-        print('There are a total of {} valid and complete sessions for {}.'.format(D[userIDcol].nunique(), scenarionName))   
+        print('There are a total of {} valid sessions for {}.'.format(D[userIDcol].nunique(), scenarionName))   
     return D
 
 def same_or_nan(acol,bcol): return [a if a != b else np.nan for a,b in zip(acol,bcol)]
