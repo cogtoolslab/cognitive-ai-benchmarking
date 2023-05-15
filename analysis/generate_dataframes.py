@@ -212,14 +212,18 @@ def pull_dataframes_from_mongo(project, dataset, task, iteration, anonymizeIDs=T
         # # we only consider the first 100 gameIDs
         # complete_gameids = complete_gameids[:100]       
         #exclude unfinished games ⚠️
-        old_len = len(df)
+        old_n_IDs = df['gameID'].nunique()
         df = df[df['gameID'].isin(complete_gameids)]
-        print("Excluded {} unfinished games".format(old_len - len(df)))
+        print("Excluded {} unfinished games".format(old_n_IDs - df['gameID'].nunique()))
     #Generate some useful views
     df_trial_entries = df[(df['condition'] == 'prediction') & (df['trial_type'] == 'video-overlay-button-response')] #only experimental trials
     df_trial_entries = df_trial_entries.assign(study=[experiment]*len(df_trial_entries), axis=0)
     df_familiarization_entries = df[(df['condition'] == 'familiarization_prediction') & (df['trial_type'] == 'video-overlay-button-response')] #only experimental fam trials
     df_familiarization_entries = df_familiarization_entries.assign(study=[experiment]*len(df_familiarization_entries), axis=0)
+    if not set(df_trial_entries.gameID.unique()).equal(df_familiarization_entries.gameID.unique()):
+        print("GameIDs in trial and familiarization entries don't match")
+        print("IDs in familiarization, not in trials:",set(df_familiarization_entries.gameID.unique()) - set(df_trial_entries.gameID.unique()))
+        print("IDs in trials, not in familiarization:",set(df_trial_entries.gameID.unique()) - set(df_familiarization_entries.gameID.unique()))
     
     # apply anonymization
     if anonymizeIDs==True:    
