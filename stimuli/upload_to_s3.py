@@ -5,7 +5,7 @@ import boto3
 import logging
 from tqdm import tqdm
 from glob import glob
-from botocore.exceptions import ClientError
+import botocore.exceptions
 
 
 def get_s3_client(credential_path):
@@ -44,32 +44,33 @@ def create_bucket(client, bucket, location='us-east-2'):
         b = client.create_bucket(Bucket=bucket,
                                  CreateBucketConfiguration={
                                      "LocationConstraint": location,
-                # CORS rules
-                "CORSRules": [
-                    {
-                        "AllowedHeaders": ["*"],
-                        "AllowedMethods": ["GET"],
-                        "AllowedOrigins": ["*"],
-                    }
-                ],
-            },
-        )
+                                 },
+                                 ACL='public-read')
         print('Created new bucket.')
-    except BucketAlreadyExists:
-        bucket = client.Bucket(bucket)
-        print('Bucket exists. Skipping creation.')
-    except ClientError as e:
-        print(f"Error creating bucket: {e}")
-        return None
+    # does the bucket already exist?
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'BucketAlreadyOwnedByYou':
+            b = client.Bucket(bucket)
+            print('Bucket exists. Skipping creation.')
+        else:
+            print(f"Error creating bucket: {e}")
+            return None
 
-    # Set ACL to public-read
+    # Set CORS rules
+    cors_configuration = {
+        'CORSRules': [{
+            'AllowedOrigins': ['*'],
+            'AllowedMethods': ['GET']
+        }]
+    }
     try:
-        bucket.Acl().put(ACL="public-read")
-        print('Set ACL to public-read.')
-    except ClientError as e:
-        print(f"Error setting ACL: {e}")
+        client.put_bucket_cors(Bucket=bucket, CORSConfiguration=cors_configuration)
+        print('Set CORS rules.')
+    except botocore.exceptions.ClientError as e:
+        print(f"Error setting CORS rules: {e}")
 
-    return bucket
+    return client
+
 
 def check_exists(client, bucket, stim):
     """
@@ -83,7 +84,7 @@ def check_exists(client, bucket, stim):
     try:
         client.Object(bucket, stim).load()
         return True
-    except ClientError as e:
+    except botocore.exceptions.ClientError as e:
         if (e.response['Error']['Code'] == "404"):
             return False
         else:
@@ -178,28 +179,3 @@ def upload_stim_to_s3(bucket,
             upload(client, bucket, s3_path, fp, overwrite=overwrite)
             # print("Uploaded " + fp + " to s3 path: " + s3_path)
     print("Done")
-#
-
-# debugging
-# if __name__ == "__main__":
-#     # bucket name on AWS S3 where stimuli where be stored
-#     bucket = 'cognitive-ai-benchmarking-physion'
-#     # local path to your aws credentials
-#     pth_to_s3_credentials = None
-#     # make sure to have trailing / for data_root
-#     data_root = '/Users/felixbinder/Desktop/Physion/Dominoes'
-#     # this finds all subdirectories in data_root and loads all files in each subdirectory to s3
-#     data_path = '**/*'
-#     multilevel = True  # Dominoes/ contains 2 subdirectories, so the structure is multi-level
-#     # list of paths to stimuli to upload to s3—include a pattern to match only for relevant files
-#     stim_paths = ['maps/*_map.png', 'mp4s/*_img.mp4']
-#     meta_file = './metadata.json'  # path to metadata for stimulus set
-#     fam_trial_ids = ['pilot_dominoes_0mid_d3chairs_o1plants_tdwroom_0013',
-#                      'pilot_dominoes_1mid_J025R45_boxroom_0020']  # image ids for familiarization trials
-#     batch_set_size = 37  # 150 total stimuli, 2 familiarization trials, 4 batches
-#     # upload dataset to aws s3
-#     upload_stim_to_s3(bucket,
-#                       pth_to_s3_credentials,
-#                       data_root,
-#                       stim_paths,
-#                       multilevel)
